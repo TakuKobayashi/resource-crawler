@@ -30,6 +30,7 @@
     "glob-promise": "^3.4.0",
     "jest": "^24.7.1",
     "nodemon": "^1.18.11",
+    "swagger": "^0.7.5",
     "swagger-express": "^1.0.5"
   },
   "license": "MIT"
