@@ -2088,6 +2088,14 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
+flickr-sdk@^3.9.0:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/flickr-sdk/-/flickr-sdk-3.9.0.tgz#dfa7d26f6a8f67e4c8bf2e25f86bad347d7b30e3"
+  integrity sha512-LQfDBdjiyDEP5gpnAy3/bQC6ipMm6+tr4hArCE0VzXp4LcspF6eYyyvaxvIw8LEZMdIifWPOHkPPBRcgJE7+/g==
+  dependencies:
+    superagent "^3.8.0"
+    xml2js "^0.4.17"
+
 follow-redirects@1.5.10:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
@@ -5661,7 +5669,7 @@ superagent@^1.2.0:
     readable-stream "1.0.27-1"
     reduce-component "1.0.1"
 
-superagent@^3.8.3:
+superagent@^3.8.0, superagent@^3.8.3:
   version "3.8.3"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-3.8.3.tgz#460ea0dbdb7d5b11bc4f78deba565f86a178e128"
   integrity sha512-GLQtLMCoEIK4eDv6OGtkOoSMt3D+oq0y3dsxMuYuDvaNUvuT8eFBuLmfR0iYYzHC1e8hpzC6ZsxbuP6DIalMFA==
@@ -6349,7 +6357,7 @@ xml-name-validator@^3.0.0:
   resolved "https://registry.yarnpkg.com/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
   integrity sha512-A5CUptxDsvxKJEU3yO6DuWBSJz/qizqzJKOMIfUJHETbBw/sFaDxgd6fxm1ewUaM0jZ444Fc5vC5ROYurg/4Pw==
 
-xml2js@0.4.19:
+xml2js@0.4.19, xml2js@^0.4.17:
   version "0.4.19"
   resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.4.19.tgz#686c20f213209e94abf0d1bcf1efaa291c7827a7"
   integrity sha512-esZnJZJOiJR9wWKMyuvSE1y6Dq5LCuJanqhxslH2bxM6duahNZ+HMpCLhBQGZkbX6xRf8x1Y2eJlgt2q3qo49Q==
