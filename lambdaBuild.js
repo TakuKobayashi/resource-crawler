@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
-const glob = require("glob");
+const glob = require('glob');
 
 const requireRoot = require('app-root-path');
-const lambdaRoutes = require(requireRoot + "/config/lambdaRoutes");
+const lambdaRoutes = require(requireRoot + '/config/lambdaRoutes');
 
-const archiveCompresser = function (platformName, projectName) {
+const archiveCompresser = function(platformName, projectName) {
   // create a file to stream archive data to.
   const output = fs.createWriteStream(platformName + '.zip');
   const archive = archiver('zip');
@@ -28,7 +28,7 @@ const archiveCompresser = function (platformName, projectName) {
   for (const filePath of filePathes) {
     const fileName = path.basename(filePath);
     archive.append(fs.createReadStream(filePath), {
-      name: fileName
+      name: fileName,
     });
   }
 
@@ -36,7 +36,7 @@ const archiveCompresser = function (platformName, projectName) {
   archive.glob(requireRoot + '/libs/**/*.js');
   archive.glob(requireRoot + '/node_modules/**/');
   archive.finalize();
-}
+};
 
 for (const plName of Object.keys(lambdaRoutes.projectToRoot)) {
   const projectPathes = glob.sync(requireRoot + lambdaRoutes.projectToRoot[plName]);
