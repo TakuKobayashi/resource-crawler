@@ -31,11 +31,14 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "glob-promise": "^3.4.0",
+    "gulp": "^4.0.2",
+    "gulp-cli": "^2.2.0",
     "jest": "^24.7.1",
     "nodemon": "^1.18.11",
     "prettier": "^1.18.2",
     "swagger": "^0.7.5",
-    "swagger-express": "^1.0.5"
+    "swagger-express": "^1.0.5",
+    "swagger-ui": "^3.22.3"
   },
   "license": "MIT"
 }
