@@ -9,12 +9,45 @@ const EXTRA_OPTIONS =
 const LIMIT_SEARCH_MILLISECOND = 240000;
 const MAX_REQUEST_SLEEP_MILLISECOND = 1000;
 
-const searchFlickrPhotos = async function searchFlickrPhotos(searchParams) {
-  const response = await searchFlickr(searchParams);
+const searchFlickrPhotos = async function searchFlickrPhotos(searchObj) {
+  const searchQueries = Object.assign(
+    {
+      per_page: PER_PAGE_COUNT,
+      extras: EXTRA_OPTIONS,
+    },
+    searchObj,
+  );
+  const response = await searchFlickr(searchQueries);
   return response.body.photos;
 };
 
 exports.searchFlickrPhotos = searchFlickrPhotos;
+
+const convertToPhotoToObject = function searchFlickrPhotos(flickrPhoto) {
+  return {
+    id: flickrPhoto.id,
+    user_name: flickrPhoto.owner,
+    title: flickrPhoto.title,
+    describe: flickrPhoto.description,
+    tags: flickrPhoto.tags,
+    latitude: flickrPhoto.latitude,
+    longitude: flickrPhoto.longitude,
+    accuracy: flickrPhoto.accuracy,
+    image_url:
+      flickrPhoto.url_o ||
+      flickrPhoto.url_l ||
+      flickrPhoto.url_c ||
+      flickrPhoto.url_z ||
+      flickrPhoto.url_n ||
+      flickrPhoto.url_m ||
+      flickrPhoto.url_q ||
+      flickrPhoto.url_s ||
+      flickrPhoto.url_t ||
+      flickrPhoto.url_sq,
+  }
+}
+
+exports.convertToPhotoToObject = convertToPhotoToObject;
 
 exports.searchAllFlickrPhotos = async function searchAllFlickrPhotos(searchObj) {
   const allSearchResults = [];
@@ -24,9 +57,7 @@ exports.searchAllFlickrPhotos = async function searchAllFlickrPhotos(searchObj) 
   while (new Date() - startTime < LIMIT_SEARCH_MILLISECOND) {
     const searchQueries = Object.assign(
       {
-        per_page: PER_PAGE_COUNT,
         page: pageNumber,
-        extras: EXTRA_OPTIONS,
       },
       searchObj,
     );
@@ -46,27 +77,7 @@ exports.searchAllFlickrPhotos = async function searchAllFlickrPhotos(searchObj) 
     }
     pageNumber = pageNumber + 1;
     for (const photo of searchResult.photo) {
-      allSearchResults.push({
-        id: photo.id,
-        user_name: photo.owner,
-        title: photo.title,
-        describe: photo.description,
-        tags: photo.tags,
-        latitude: photo.latitude,
-        longitude: photo.longitude,
-        accuracy: photo.accuracy,
-        image_url:
-          photo.url_o ||
-          photo.url_l ||
-          photo.url_c ||
-          photo.url_z ||
-          photo.url_n ||
-          photo.url_m ||
-          photo.url_q ||
-          photo.url_s ||
-          photo.url_t ||
-          photo.url_sq,
-      });
+      allSearchResults.push(convertToPhotoToObject(photo));
     }
     const elapsedMilliSecond = new Date() - requestStartTime;
     if (elapsedMilliSecond < MAX_REQUEST_SLEEP_MILLISECOND) {
