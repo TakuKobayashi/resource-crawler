@@ -6,7 +6,7 @@
     "server": "nodemon server.js",
     "build": "node lambdaBuild.js",
     "format": "prettier --config .prettierrc --write 'lambda/**/*.{ts,js}'",
-    "swagger:build": "redoc-cli bundle config/swagger.yml"
+    "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html"
   },
   "author": "TakuKobayashi",
   "private": true,
@@ -37,6 +37,7 @@
     "jest": "^24.7.1",
     "nodemon": "^1.18.11",
     "prettier": "^1.18.2",
+    "redoc": "^2.0.0-rc.8-1",
     "redoc-cli": "^0.8.4",
     "swagger": "^0.7.5"
   },
