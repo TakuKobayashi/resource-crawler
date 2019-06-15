@@ -1,5 +1,4 @@
-const requireRoot = require('app-root-path').require;
-const util = requireRoot('/libs/util');
+const TWITTER_ROOT_URL = "https://twitter.com/";
 
 const Twitter = require('twitter-promise');
 const twitter = new Twitter({
@@ -9,9 +8,9 @@ const twitter = new Twitter({
   access_token_secret: process.env.TWITTER_BOT_ACCESS_TOKEN_SECRET,
 });
 
-const getTweets = async function getTweets(searchParams) {
+const getTweets = async function getTweets(apiPath, searchParams) {
   const result = await twitter.get({
-    path: 'search/tweets',
+    path: 'apiPath',
     params: searchParams,
   });
   return result;
@@ -19,13 +18,20 @@ const getTweets = async function getTweets(searchParams) {
 
 exports.getTweets = getTweets;
 
+const searchTweets = async function searchTweets(searchParams) {
+  const searchQueries = Object.assign({ count: 100 }, searchParams);
+  return getTweets('search/tweets', searchQueries)
+};
+
+exports.searchTweets = searchTweets;
+
 const searchAllTweets = async function searchAllTweets(searchParams) {
   let allSearchResults = [];
   let maxId = null;
   while (true) {
     let err;
-    const searchQueries = Object.assign({ count: 100, max_id: maxId }, searchParams);
-    const searchResults = await getTweets('search/tweets', searchQueries).catch((error) => (err = error));
+    const searchQueries = Object.assign({max_id: maxId }, searchParams);
+    const searchResults = await searchTweets(searchQueries).catch((error) => (err = error));
     maxId = searchResults.data.search_metadata.max_id;
     if (err || maxId <= 0) {
       break;
@@ -37,18 +43,30 @@ const searchAllTweets = async function searchAllTweets(searchParams) {
 
 exports.searchAllTweets = searchAllTweets;
 
+exports.searchResourceTweets = async function searchResourceTweets(searchParams) {
+  const tweets = await searchTweets(searchParams);
+  return filterResourceTweets(tweets);
+};
+
 exports.searchAllResourceTweets = async function searchAllResourceTweets(searchParams) {
   const tweets = await searchAllTweets(searchParams);
   return filterResourceTweets(tweets);
 };
+
+const getTimelineTweets = async function getTimelineTweets(searchParams) {
+  const searchQueries = Object.assign({ count: 200 }, searchParams);
+  return getTweets('statuses/user_timeline', searchQueries)
+};
+
+exports.getTimelineTweets = getTimelineTweets;
 
 const getAllTimelineTweets = async function getAllTimelineTweets(searchParams) {
   let allSearchResults = [];
   let maxId = null;
   while (true) {
     let err;
-    const searchQueries = Object.assign({ count: 200, max_id: maxId }, searchParams);
-    const searchResults = await getTweets('statuses/user_timeline', searchQueries).catch((error) => (err = error));
+    const searchQueries = Object.assign({max_id: maxId }, searchParams);
+    const searchResults = await getTimelineTweets(searchQueries).catch((error) => (err = error));
     if (searchResults.length > 0) {
       maxId = searchResults[searchResults.length - 1].id;
     } else {
@@ -63,6 +81,11 @@ const getAllTimelineTweets = async function getAllTimelineTweets(searchParams) {
 };
 
 exports.getAllTimelineTweets = getAllTimelineTweets;
+
+exports.getTimelineResourceTweets = async function getTimelineResourceTweets(searchParams) {
+  const tweets = await getTimelineTweets(searchParams);
+  return filterResourceTweets(tweets);
+};
 
 exports.getAllTimelineResourceTweets = async function getAllTimelineResourceTweets(searchParams) {
   const tweets = await getAllTimelineTweets(searchParams);
@@ -82,4 +105,58 @@ function filterResourceTweets(tweets) {
     }
     return false;
   });
+}
+
+
+exports.convertStatusesToResourcesObject = function convertStatusesToResourcesObject(statuses) {
+  const twitterWebsites = [];
+  const twitterImages = [];
+  const twitterVideos = [];
+  for (const status of statuses) {
+    for (const website_url of status.entities.urls) {
+      twitterWebsites.push({
+        id: status.id.toString(),
+        user_id: status.user.id.toString(),
+        user_name: status.user.screen_name,
+        tweet: status.text,
+        website_url: website_url,
+      });
+    }
+    if (status.extended_entities) {
+      const twitterWebsiteUrl = TWITTER_ROOT_URL + status.user.screen_name + "/status/" + status.id;
+      for (const twitterMedia of status.extended_entities.media) {
+        if (twitterMedia.video_info) {
+          twitterVideos.push({
+            id: status.id.toString(),
+            user_id: status.user.id.toString(),
+            user_name: status.user.screen_name,
+            tweet: status.text,
+            website_url: twitterWebsiteUrl,
+            duration_millis: twitterMedia.video_info.duration_millis,
+            thumbnail_image_url: twitterMedia.media_url_https,
+            videos: twitterMedia.video_info.variants.map((variant) => {
+              return {
+                url: variant.url,
+                bitrate: variant.bitrate,
+              };
+            }),
+          });
+        } else {
+          twitterImages.push({
+            id: status.id.toString(),
+            user_id: status.user.id.toString(),
+            user_name: status.user.screen_name,
+            tweet: status.text,
+            website_url: twitterWebsiteUrl,
+            image_url: twitterMedia.media_url_https,
+          });
+        }
+      }
+    }
+    return {
+      websites: twitterWebsites,
+      images: twitterImages,
+      videos: twitterVideos,
+    };
+  }
 }
