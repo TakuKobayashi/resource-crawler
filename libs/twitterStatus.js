@@ -9,8 +9,14 @@ const twitter = new Twitter({
 });
 
 const getTweets = async function getTweets(apiPath, searchParams) {
+  const keys = Object.keys(searchParams);
+  for(const key of keys){
+    if(!searchParams[key]){
+      delete searchParams[key]
+    }
+  }
   const result = await twitter.get({
-    path: 'apiPath',
+    path: apiPath,
     params: searchParams,
   });
   return result;
@@ -31,12 +37,17 @@ const searchAllTweets = async function searchAllTweets(searchParams) {
   while (true) {
     let err;
     const searchQueries = Object.assign({max_id: maxId }, searchParams);
-    const searchResults = await searchTweets(searchQueries).catch((error) => (err = error));
-    maxId = searchResults.data.search_metadata.max_id;
-    if (err || maxId <= 0) {
+    const searchResults = await searchTweets(searchQueries).catch((error) => {
+      err = error;
+    });
+    if (err) {
       break;
     }
     allSearchResults = allSearchResults.concat(searchResults.data.statuses);
+    maxId = searchResults.data.search_metadata.max_id;
+    if (!searchResults.data.search_metadata.next_results) {
+      break;
+    }
   }
   return allSearchResults;
 };
@@ -45,7 +56,7 @@ exports.searchAllTweets = searchAllTweets;
 
 exports.searchResourceTweets = async function searchResourceTweets(searchParams) {
   const tweets = await searchTweets(searchParams);
-  return filterResourceTweets(tweets);
+  return filterResourceTweets(tweets.data.statuses);
 };
 
 exports.searchAllResourceTweets = async function searchAllResourceTweets(searchParams) {
@@ -66,16 +77,18 @@ const getAllTimelineTweets = async function getAllTimelineTweets(searchParams) {
   while (true) {
     let err;
     const searchQueries = Object.assign({max_id: maxId }, searchParams);
-    const searchResults = await getTimelineTweets(searchQueries).catch((error) => (err = error));
-    if (searchResults.length > 0) {
-      maxId = searchResults[searchResults.length - 1].id;
+    const searchResults = await getTimelineTweets(searchQueries).catch((error) => {
+      err = error;
+    });
+    allSearchResults = allSearchResults.concat(searchResults.data);
+    if (searchResults.data.length > 0) {
+      maxId = searchResults.data[searchResults.data.length - 1].id;
     } else {
       maxId = 0;
     }
     if (err || maxId <= 0) {
       break;
     }
-    allSearchResults = allSearchResults.concat(searchResults.data.statuses);
   }
   return allSearchResults;
 };
@@ -84,7 +97,7 @@ exports.getAllTimelineTweets = getAllTimelineTweets;
 
 exports.getTimelineResourceTweets = async function getTimelineResourceTweets(searchParams) {
   const tweets = await getTimelineTweets(searchParams);
-  return filterResourceTweets(tweets);
+  return filterResourceTweets(tweets.data);
 };
 
 exports.getAllTimelineResourceTweets = async function getAllTimelineResourceTweets(searchParams) {
@@ -106,7 +119,6 @@ function filterResourceTweets(tweets) {
     return false;
   });
 }
-
 
 exports.convertStatusesToResourcesObject = function convertStatusesToResourcesObject(statuses) {
   const twitterWebsites = [];
