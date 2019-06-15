@@ -1,90 +1,169 @@
 swagger: "2.0"
 info:
-  description: "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters."
+  description: "You can efficiently collect a huge amount of resources, images, audios, videos and so on, to use this WebAPI. The resource data is got from major web services."
   version: "1.0.0"
-  title: "Swagger Petstore"
-  termsOfService: "http://swagger.io/terms/"
+  title: "ResourceCrawler"
   contact:
-    email: "apiteam@swagger.io"
+    email: "keep_slimbody@yahoo.co.jp"
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "petstore.swagger.io"
-basePath: "/v2"
+host: "https://oxv022yij5.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/resource_crawler"
 tags:
-- name: "pet"
+- name: "Google"
   description: "Everything about your Pets"
   externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-- name: "store"
+    description: "Find out more about our store"
+    url: "https://www.google.co.jp/"
+- name: "Flickr"
   description: "Access to Petstore orders"
-- name: "user"
+  externalDocs:
+    description: "Find out more about our store"
+    url: "https://www.flickr.com/"
+- name: "Twitter"
   description: "Operations about user"
   externalDocs:
     description: "Find out more about our store"
-    url: "http://swagger.io"
-schemes:
-- "https"
-- "http"
+    url: "https://twitter.com"
+- name: "Nicovideo"
+  description: "Operations about user"
+  externalDocs:
+    description: "Find out more about our store"
+    url: "https://www.nicovideo.jp/"
 paths:
-  /pet:
+  /google/search/images:
+    get:
+      tags:
+      - "Google"
+      summary: "Search images from words"
+      description: ""
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+  /google/search/image-relations:
+    get:
+      tags:
+      - "Google"
+      summary: "Search images from words"
+      description: ""
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      - name: "relation_id"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+  /flickr/search/resources:
+    get:
+      tags:
+      - "Flickr"
+      summary: "Search images from words"
+      description: ""
+      parameters:
+      - name: "q"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      - name: "user_id"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      - name: "tags"
+        in: "query"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+  /search/reverse-image:
     post:
       tags:
-      - "pet"
-      summary: "Add a new pet to the store"
+      - "Google"
+      summary: "Search images from words"
       description: ""
-      operationId: "addPet"
       consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/xml"
-      - "application/json"
+      - "application/x-www-form-urlencoded"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
+      - name: "image_url"
+        in: "formData"
+        description: "search keywords you want."
         required: true
-        schema:
-          $ref: "#/definitions/Pet"
+        type: "string"
       responses:
-        405:
-          description: "Invalid input"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
-    put:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+  /twitter/search/tweets/resources:
+    get:
       tags:
-      - "pet"
-      summary: "Update an existing pet"
+      - "Twitter"
+      summary: "Search images from words"
       description: ""
-      operationId: "updatePet"
-      consumes:
-      - "application/json"
-      - "application/xml"
-      produces:
-      - "application/xml"
-      - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Pet object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/Pet"
+      - name: "q"
+        in: "query"
+        description: "search keywords you want."
+        required: false
+        type: "string"
+      - name: "user_id"
+        in: "query"
+        description: "search keywords you want."
+        required: false
+        type: "string"
+      - name: "screen_name"
+        in: "query"
+        description: "search keywords you want."
+        required: false
+        type: "string"
       responses:
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "Pet not found"
-        405:
-          description: "Validation exception"
-      security:
-      - petstore_auth:
-        - "write:pets"
-        - "read:pets"
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+  /niconico/video:
+    post:
+      tags:
+      - "Nicovideo"
+      summary: "Search images from words"
+      description: ""
+      consumes:
+      - "application/x-www-form-urlencoded"
+      parameters:
+      - name: "urls"
+        in: "formData"
+        description: "search keywords you want."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+
   /pet/findByStatus:
     get:
       tags:
@@ -564,18 +643,6 @@ paths:
           description: "Invalid username supplied"
         404:
           description: "User not found"
-securityDefinitions:
-  petstore_auth:
-    type: "oauth2"
-    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-    flow: "implicit"
-    scopes:
-      write:pets: "modify pets in your account"
-      read:pets: "read your pets"
-  api_key:
-    type: "apiKey"
-    name: "api_key"
-    in: "header"
 definitions:
   Order:
     type: "object"
