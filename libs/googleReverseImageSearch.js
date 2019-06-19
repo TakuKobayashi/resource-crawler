@@ -2,8 +2,9 @@ const cheerio = require('cheerio');
 const axios = require('axios');
 const url = require('url');
 
-const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36';
-const GOOGLE_REVERSE_SEARCH_ROOT_URL = "https://www.google.co.jp/searchbyimage"
+const USER_AGENT =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36';
+const GOOGLE_REVERSE_SEARCH_ROOT_URL = 'https://www.google.co.jp/searchbyimage';
 
 const searchReverseImages = async function searchReverseImages(searchParams) {
   // 初期化
@@ -57,7 +58,7 @@ const searchReverseImages = async function searchReverseImages(searchParams) {
     reverse_images: reverseImageObject,
     websites: websites,
   };
-}
+};
 
 exports.searchReverseImages = searchReverseImages;
 

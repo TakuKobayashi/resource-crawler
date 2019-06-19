@@ -3,9 +3,9 @@ const util = requireRoot('/libs/util');
 const cheerio = require('cheerio');
 const axios = require('axios');
 
-const INSTAGRAM_TAG_SEARCH_API_URL = "https://www.instagram.com/explore/tags/"
-const INSTAGRAM_QUERY_API_URL = "https://www.instagram.com/graphql/query/"
-const INSTAGRAM_TARGET_JS_FILENAME = "Consumer.js"
+const INSTAGRAM_TAG_SEARCH_API_URL = 'https://www.instagram.com/explore/tags/';
+const INSTAGRAM_QUERY_API_URL = 'https://www.instagram.com/graphql/query/';
+const INSTAGRAM_TARGET_JS_FILENAME = 'Consumer.js';
 
 const GOOGLE_SEARCH_ROOT_URL = 'https://www.google.co.jp/search';
 const USER_AGENT =
@@ -14,7 +14,7 @@ const LIMIT_SEARCH_MILLISECOND = 240000;
 const MAX_REQUEST_SLEEP_MILLISECOND = 1000;
 
 const searchInstagramToObjects = async function searchInstagramToObjects(tag) {
-  const response = await axios.get(INSTAGRAM_TAG_SEARCH_API_URL + tag + "/");
+  const response = await axios.get(INSTAGRAM_TAG_SEARCH_API_URL + tag + '/');
   const $ = cheerio.load(response.data);
   const results = [];
 

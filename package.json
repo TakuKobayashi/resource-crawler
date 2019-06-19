@@ -5,7 +5,7 @@
   "scripts": {
     "server": "nodemon server.js",
     "build": "node lambdaBuild.js",
-    "format": "prettier --config .prettierrc --write 'lambda/**/*.{ts,js}'",
+    "format": "prettier --config .prettierrc --write '{lambda,libs}/**/*.{ts,js}'",
     "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html"
   },
   "author": "TakuKobayashi",

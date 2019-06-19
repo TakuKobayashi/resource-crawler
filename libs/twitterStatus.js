@@ -1,4 +1,4 @@
-const TWITTER_ROOT_URL = "https://twitter.com/";
+const TWITTER_ROOT_URL = 'https://twitter.com/';
 
 const Twitter = require('twitter-promise');
 const twitter = new Twitter({
@@ -10,9 +10,9 @@ const twitter = new Twitter({
 
 const getTweets = async function getTweets(apiPath, searchParams) {
   const keys = Object.keys(searchParams);
-  for(const key of keys){
-    if(!searchParams[key]){
-      delete searchParams[key]
+  for (const key of keys) {
+    if (!searchParams[key]) {
+      delete searchParams[key];
     }
   }
   const result = await twitter.get({
@@ -26,7 +26,7 @@ exports.getTweets = getTweets;
 
 const searchTweets = async function searchTweets(searchParams) {
   const searchQueries = Object.assign({ count: 100 }, searchParams);
-  return getTweets('search/tweets', searchQueries)
+  return getTweets('search/tweets', searchQueries);
 };
 
 exports.searchTweets = searchTweets;
@@ -36,7 +36,7 @@ const searchAllTweets = async function searchAllTweets(searchParams) {
   let maxId = null;
   while (true) {
     let err;
-    const searchQueries = Object.assign({max_id: maxId }, searchParams);
+    const searchQueries = Object.assign({ max_id: maxId }, searchParams);
     const searchResults = await searchTweets(searchQueries).catch((error) => {
       err = error;
     });
@@ -66,7 +66,7 @@ exports.searchAllResourceTweets = async function searchAllResourceTweets(searchP
 
 const getTimelineTweets = async function getTimelineTweets(searchParams) {
   const searchQueries = Object.assign({ count: 200 }, searchParams);
-  return getTweets('statuses/user_timeline', searchQueries)
+  return getTweets('statuses/user_timeline', searchQueries);
 };
 
 exports.getTimelineTweets = getTimelineTweets;
@@ -76,7 +76,7 @@ const getAllTimelineTweets = async function getAllTimelineTweets(searchParams) {
   let maxId = null;
   while (true) {
     let err;
-    const searchQueries = Object.assign({max_id: maxId }, searchParams);
+    const searchQueries = Object.assign({ max_id: maxId }, searchParams);
     const searchResults = await getTimelineTweets(searchQueries).catch((error) => {
       err = error;
     });
@@ -135,7 +135,7 @@ exports.convertStatusesToResourcesObject = function convertStatusesToResourcesOb
       });
     }
     if (status.extended_entities) {
-      const twitterWebsiteUrl = TWITTER_ROOT_URL + status.user.screen_name + "/status/" + status.id;
+      const twitterWebsiteUrl = TWITTER_ROOT_URL + status.user.screen_name + '/status/' + status.id;
       for (const twitterMedia of status.extended_entities.media) {
         if (twitterMedia.video_info) {
           twitterVideos.push({
@@ -171,4 +171,4 @@ exports.convertStatusesToResourcesObject = function convertStatusesToResourcesOb
       videos: twitterVideos,
     };
   }
-}
+};
