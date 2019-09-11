@@ -3,8 +3,6 @@
   "version": "0.0.1",
   "main": "handler.js",
   "scripts": {
-    "server": "nodemon server.js",
-    "build": "node lambdaBuild.js",
     "format": "prettier --config .prettierrc --write '{lambda,libs}/**/*.{ts,js}'",
     "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html",
     "serverless": "serverless"
@@ -23,8 +21,6 @@
     "ngeohash": "^0.6.3",
     "source-map-support": "^0.5.13",
     "twitter-promise": "^1.2.0",
-    "underscore": "^1.9.1",
-    "underscore.string": "^3.3.5",
     "url": "^0.11.0",
     "uuid": "^3.3.2",
     "ytdl-core": "^0.29.2"
@@ -32,19 +28,9 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.31",
     "@types/node": "^12.7.4",
-    "archiver": "^3.0.0",
-    "del": "^4.1.1",
     "documentation": "^11.0.0",
     "dotenv": "^7.0.0",
-    "ejs": "^2.6.1",
-    "express": "^4.16.4",
-    "glob-promise": "^3.4.0",
-    "gulp": "^4.0.2",
-    "gulp-cli": "^2.2.0",
-    "gulp-install": "^1.1.0",
-    "gulp-zip": "^5.0.0",
     "jest": "^24.7.1",
-    "nodemon": "^1.18.11",
     "prettier": "^1.18.2",
     "redoc": "^2.0.0-rc.8-1",
     "redoc-cli": "^0.8.4",
