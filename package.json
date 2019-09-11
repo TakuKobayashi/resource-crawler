@@ -1,12 +1,13 @@
 {
-  "name": "resource_crawler",
+  "name": "resourcecrawler",
   "version": "0.0.1",
-  "main": "server.js",
+  "main": "handler.js",
   "scripts": {
     "server": "nodemon server.js",
     "build": "node lambdaBuild.js",
     "format": "prettier --config .prettierrc --write '{lambda,libs}/**/*.{ts,js}'",
-    "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html"
+    "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html",
+    "serverless": "serverless"
   },
   "author": "TakuKobayashi",
   "private": true,
@@ -20,6 +21,7 @@
     "flickr-sdk": "^3.9.0",
     "geolib": "^3.0.3",
     "ngeohash": "^0.6.3",
+    "source-map-support": "^0.5.13",
     "twitter-promise": "^1.2.0",
     "underscore": "^1.9.1",
     "underscore.string": "^3.3.5",
@@ -28,6 +30,8 @@
     "ytdl-core": "^0.29.2"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.31",
+    "@types/node": "^12.7.4",
     "archiver": "^3.0.0",
     "del": "^4.1.1",
     "documentation": "^11.0.0",
@@ -44,8 +48,12 @@
     "prettier": "^1.18.2",
     "redoc": "^2.0.0-rc.8-1",
     "redoc-cli": "^0.8.4",
-    "run-sequence": "^2.2.1",
-    "swagger": "^0.7.5"
+    "serverless": "^1.51.0",
+    "serverless-webpack": "^5.3.1",
+    "swagger": "^0.7.5",
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.39.3"
   },
   "license": "MIT"
 }
