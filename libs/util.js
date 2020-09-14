@@ -7,7 +7,9 @@ exports.sleep = async function sleep(waitMilliseconds) {
 };
 
 exports.maxBy = function maxBy(arr, callback) {
-  const results = arr.map(function (el) { return callback(el); });
+  const results = arr.map(function(el) {
+    return callback(el);
+  });
   const max = Math.max.apply(null, results);
   return arr[results.indexOf(max)];
 };
