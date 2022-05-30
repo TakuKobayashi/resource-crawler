@@ -4,11 +4,11 @@ const express = require('express');
 const niconicoImageRouter = express.Router();
 
 niconicoImageRouter.get('/', (req: Request, res: Response, next: NextFunction) => {
-  res.json({hello: 'world'});
+  res.json({ hello: 'world' });
 });
 
 niconicoImageRouter.get('/search', (req: Request, res: Response, next: NextFunction) => {
-  res.json({hello: 'world'});
+  res.json({ hello: 'world' });
 });
 
 export { niconicoImageRouter };

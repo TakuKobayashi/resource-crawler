@@ -100,7 +100,7 @@ export async function getAllTimelineResourceTweets(searchParams) {
 }
 
 function filterResourceTweets(tweets) {
-  return tweets.filter(function(tweet) {
+  return tweets.filter(function (tweet) {
     if (tweet.entities.urls.length > 0) {
       return true;
     }

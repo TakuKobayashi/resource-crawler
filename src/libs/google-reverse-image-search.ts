@@ -43,10 +43,7 @@ export async function searchReverseImages(searchParams: { [s: string]: any }): P
 
   for (const relationElement of Object.values($('#imagebox_bigimages'))) {
     const ele = $(relationElement);
-    const relationImageSearchPath = ele
-      .find('h3')
-      .find('a')
-      .attr('href');
+    const relationImageSearchPath = ele.find('h3').find('a').attr('href');
     if (relationImageSearchPath) {
       // ここで出てきたQueryをそのまま画像検索のAPIに投げてくれれば、それはそれでやる形にする
       reverseImageObject.relative_image_search_query = parse(relationImageSearchPath).query;

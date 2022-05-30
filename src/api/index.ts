@@ -1,8 +1,6 @@
-import 'source-map-support/register';
-
-import { APIGatewayEvent, APIGatewayProxyHandler, Context } from 'aws-lambda';
-import * as awsServerlessExpress from 'aws-serverless-express';
-import * as express from 'express';
+import serverlessExpress from '@vendia/serverless-express';
+import express, { Request, Response, NextFunction } from 'express';
+import bodyParser from 'body-parser';
 
 import { flickrSearchRouter } from './routes/flickr/search';
 import { googleSearchRouter } from './routes/google/search';
@@ -18,16 +16,10 @@ import { websiteScrapeRouter } from './routes/website/scrape';
 import { youtubeVideoRouter } from './routes/youtube/video';
 
 const app = express();
-const server = awsServerlessExpress.createServer(app);
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 
-app.use(cookieParser());
+app.use(bodyParser.text({ type: '*/*' }));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 
-app.use(cors({ origin: true }));
 app.use('/flickr/search', flickrSearchRouter);
 app.use('/google/search', googleSearchRouter);
 app.use('/google/map', googleMapRouter);
@@ -41,10 +33,10 @@ app.use('/twitter/search', twitterSearchRouter);
 app.use('/website/scrape', websiteScrapeRouter);
 app.use('/youtube/video', youtubeVideoRouter);
 
-app.get('/', (req: express.Request, res: express.Response) => {
-  res.json({ hello: 'world' });
+app.get('/test', (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({
+    message: 'Hello from root!',
+  });
 });
 
-export const handler: APIGatewayProxyHandler = (event: APIGatewayEvent, context: Context) => {
-  awsServerlessExpress.proxy(server, event, context);
-};
+export const handler = serverlessExpress({ app });
