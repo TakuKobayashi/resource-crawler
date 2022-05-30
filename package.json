@@ -4,8 +4,9 @@
   "main": "handler.js",
   "scripts": {
     "format": "prettier --config .prettierrc --write \"src/**/*.{ts,js}\"",
-    "swagger:build": "redoc-cli bundle config/swagger.yml -o docs/index.html",
-    "serverless": "serverless"
+    "swagger:build": "redoc-cli build config/swagger.yml -o docs/index.html",
+    "serverless": "serverless",
+    "docs": "typedoc --tsconfig tsconfig.json --entryPoints src/**/*.ts --out docs/"
   },
   "author": "TakuKobayashi",
   "private": true,
@@ -46,6 +47,7 @@
     "serverless-webpack": "^5.7.1",
     "ts-node": "^10.8.0",
     "tsconfig-paths": "^4.0.0",
+    "typedoc": "^0.22.15",
     "typescript": "^4.7.2"
   },
   "license": "MIT"

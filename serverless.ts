@@ -60,9 +60,9 @@ const serverlessConfiguration: AWS = {
     }
   },
   functions: {
-    memorySize: 128,
-    timeout: 900,
-    app: {
+    api: {
+      memorySize: 128,
+      timeout: 900,
       handler: 'src/api/index.handler',
       events: [
         {
@@ -77,6 +77,26 @@ const serverlessConfiguration: AWS = {
             method: 'ANY',
             path: '/{any+}',
             cors: true,
+          },
+        },
+      ],
+    },
+    crons: {
+      memorySize: 128,
+      timeout: 900,
+      handler: 'src/schedulers/index.event',
+      events: [
+        {
+          schedule: {
+            rate: ['rate(1 minute)'],
+            enabled: false,
+            input: {
+              key1: 'value1',
+              key2: 'value2',
+              stageParams: {
+                stage: 'dev'
+              }
+            }
           },
         },
       ],
