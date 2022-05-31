@@ -56,4 +56,17 @@ app.get('/crypttest', (req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+// 画像のハッシュpHashの各種ライブラリを試してみる
+app.get('/checkimage_hashes', async (req: Request, res: Response, next: NextFunction) => {
+  // 検証用で用意した画像たち
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_auto_filter.jpg
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_crop.jpg
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_origin.jpg
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_origin_small_size.jpg
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_sometime_filter.jpg
+  // https://taptappun.s3.ap-northeast-1.amazonaws.com/sample_vertical.jpg
+  res.json({
+  });
+});
+
 export const handler = serverlessExpress({ app });
