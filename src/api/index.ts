@@ -1,7 +1,7 @@
 import serverlessExpress from '@vendia/serverless-express';
 import express, { Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
-import { getHashes , createHash } from 'crypto';
+import { getHashes, createHash } from 'crypto';
 
 import { flickrSearchRouter } from './routes/flickr/search';
 import { googleSearchRouter } from './routes/google/search';
