@@ -39,6 +39,8 @@ const serverlessConfiguration: AWS = {
     name: 'aws',
     runtime: 'nodejs14.x',
     region: 'ap-northeast-1',
+    timeout: 900,
+    memorySize: 128,
     apiGateway: {
       minimumCompressionSize: 1024,
       shouldStartNameWithService: true,
@@ -76,8 +78,6 @@ const serverlessConfiguration: AWS = {
   },
   functions: {
     api: {
-      memorySize: 128,
-      timeout: 900,
       handler: 'src/api/index.handler',
       events: [
         {
@@ -97,8 +97,6 @@ const serverlessConfiguration: AWS = {
       ],
     },
     crons: {
-      memorySize: 128,
-      timeout: 900,
       handler: 'src/schedulers/index.event',
       events: [
         {
