@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import { createHash } from 'crypto';
 import path from 'path';
 import jimp from 'jimp';
+import { DynamoDBORM } from 'node-dynamodb-orm'
 
 import { flickrSearchRouter } from './routes/flickr/search';
 import { googleSearchRouter } from './routes/google/search';
@@ -37,6 +38,18 @@ app.use('/website/scrape', websiteScrapeRouter);
 app.use('/youtube/video', youtubeVideoRouter);
 
 app.get('/test', (req: Request, res: Response, next: NextFunction) => {
+  res.status(200).json({
+    message: 'Hello from root!',
+  });
+});
+
+app.get('/dbtest', async (req: Request, res: Response, next: NextFunction) => {
+  // Localにアクセスする場合
+  DynamoDBORM.updateConfig({region: "ap-northeast-1", endpoint: "http://localhost:8000"})
+  // productionの方にアクセスする場合
+  // DynamoDBORM.updateConfig({region: "ap-northeast-1", accessKeyId: "", secretAccessKey: ""})
+  const resourcedb = new DynamoDBORM("resources");
+  const result = await resourcedb.create({url: "hogehoge"})
   res.status(200).json({
     message: 'Hello from root!',
   });
