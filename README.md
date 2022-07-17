@@ -112,6 +112,8 @@ yarn add -D dynamodb-admin
 その後dynamodbが立ち上がっているときに
 
 ```
+npx dynamodb-admin
+あるいは -g コマンドでインストールしていれば
 dynamodb-admin
 ```
 
