@@ -21,6 +21,14 @@ const serverlessConfiguration: AWS = {
       path: './.env',
       include: Object.keys(configedEnv.parsed),
     },
+    dynamodb: {
+      stages: ['dev'],
+      start: {
+        migrate: true,
+        // Uncomment only if you already have a DynamoDB running locally
+        //noStart: true
+      },
+    },
   },
   // Add the serverless-webpack plugin
   plugins: ['serverless-esbuild', 'serverless-dotenv-plugin', 'serverless-dynamodb-local', 'serverless-offline'],
@@ -40,24 +48,28 @@ const serverlessConfiguration: AWS = {
   resources: {
     Resources: {
       usersTable: {
-        Type: "AWS::DynamoDB::Table",
+        Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: "resources",
-          AttributeDefinitions: {
-            AttributeName: "url",
-            AttributeType: "S",
-          },
-          KeySchema: {
-            AttributeName: "url",
-            KeyType: "HASH",
-          },
+          TableName: 'resources',
+          AttributeDefinitions: [
+            {
+              AttributeName: 'url',
+              AttributeType: 'S',
+            },
+          ],
+          KeySchema: [
+            {
+              AttributeName: 'url',
+              KeyType: 'HASH',
+            },
+          ],
           ProvisionedThroughput: {
             ReadCapacityUnits: 5,
             WriteCapacityUnits: 5,
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   },
   functions: {
     api: {
@@ -94,14 +106,14 @@ const serverlessConfiguration: AWS = {
               key1: 'value1',
               key2: 'value2',
               stageParams: {
-                stage: 'dev'
-              }
-            }
+                stage: 'dev',
+              },
+            },
           },
         },
       ],
     },
   },
-}
+};
 
 module.exports = serverlessConfiguration;
