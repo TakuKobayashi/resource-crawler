@@ -44,3 +44,35 @@ parseInt(pHash, 2).toString(16),
 
 
 (詳しくは [index.ts](./src/api/index.ts) の`checkimage_hashes` の部分を参照)
+
+### Dynamodb
+
+#### Serverless Framework + Dynamodb local
+
+まずはServerles DynamoDB local pluginの依存モジュールのインストールする
+
+```
+npm install -D serverless-dynamodb-local
+```
+
+次に、[serverless.ts](./serverless.ts) に `serverless-dynamodb-local` の plugin の指定を入れます。
+
+```typescript
+const serverlessConfiguration: AWS = {
+  plugins: ['serverless-dynamodb-local'],
+}
+```
+
+これで以下のコマンドを実行します
+
+```
+serverless dynamodb install
+```
+
+インストールが完了すると、 `.dynamodb` ディレクトリが作成され、jarなどが配置されます。
+
+`serverless dynamodb start` のコマンドで、DynamoDB Localが起動します。
+
+【参考】
+* [ServerlessFrameworkでDynamoDBLocalを使う](https://qiita.com/marchin_1989/items/1a5ad220bee030fef111)
+* [Serverless DynamoDB Local](https://www.serverless.com/plugins/serverless-dynamodb-local/)
