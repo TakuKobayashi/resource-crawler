@@ -25,7 +25,10 @@ const serverlessConfiguration: AWS = {
       stages: ['dev'],
       start: {
         migrate: true,
-        // Uncomment only if you already have a DynamoDB running locally
+        // inMemory: truemにすることでメモリ上で実行する事でデータを永続化しません。
+        inMemory: true,
+        // すでにlocalでDynamodbが起動している状態ならば
+        // noStart: true と指定することで serverless offline startでdynamodbも一緒に立ち上がるようなことはありません
         //noStart: true
       },
     },
