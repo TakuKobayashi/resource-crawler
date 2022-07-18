@@ -32,8 +32,6 @@ jobs:
         GOOGLE_OAUTH_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH_CLIENT_SECRET }}
         FLICKR_APIKEY: ${{ secrets.FLICKR_APIKEY }}
         FLICKR_SECRET: ${{ secrets.FLICKR_SECRET }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         echo "TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}" >> ./.env
         echo "TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}" >> ./.env
@@ -44,8 +42,6 @@ jobs:
         echo "GOOGLE_OAUTH_CLIENT_SECRET=${GOOGLE_OAUTH_CLIENT_SECRET}" >> ./.env
         echo "FLICKR_APIKEY=${FLICKR_APIKEY}" >> ./.env
         echo "FLICKR_SECRET=${FLICKR_SECRET}" >> ./.env
-        echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" >> ./.env
-        echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" >> ./.env
     - name: yarn install
       working-directory: ${{ matrix.root-project-path }}
       run: yarn install
