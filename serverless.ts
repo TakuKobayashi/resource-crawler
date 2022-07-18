@@ -57,7 +57,8 @@ const serverlessConfiguration: AWS = {
             'dynamodb:*',
           ],
           Resource: [
-            'arn:aws:dynamodb:ap-northeast-1:*:*'
+            // 'arn:aws:dynamodb:[region名]:[accountid]:table/[テーブル名]'
+            'arn:aws:dynamodb:ap-northeast-1:*:table/*'
           ],
         }],
       },
