@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import { createHash } from 'crypto';
 import path from 'path';
 import jimp from 'jimp';
-import { DynamoDBORM } from 'node-dynamodb-orm'
+import { DynamoDBORM } from 'node-dynamodb-orm';
 
 import { flickrSearchRouter } from './routes/flickr/search';
 import { googleSearchRouter } from './routes/google/search';
@@ -22,9 +22,13 @@ import { youtubeVideoRouter } from './routes/youtube/video';
 console.log(process.env);
 // OFFLINEならばLOCDALを参照してそうじゃなければAWS上にあるDynamoDBを参照する
 if (process.env.IS_OFFLINE) {
-  DynamoDBORM.updateConfig({region: "ap-northeast-1", endpoint: "http://localhost:8000"})
+  DynamoDBORM.updateConfig({ region: process.env.AWS_REGION, endpoint: 'http://localhost:8000' });
 } else {
-  DynamoDBORM.updateConfig({region: "ap-northeast-1", accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY})
+  DynamoDBORM.updateConfig({
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  });
 }
 
 const app = express();
@@ -52,8 +56,8 @@ app.get('/test', (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.get('/dbtest', async (req: Request, res: Response, next: NextFunction) => {
-  const resourcedb = new DynamoDBORM("resources");
-  const result = await resourcedb.create({url: "hogehoge"})
+  const resourcedb = new DynamoDBORM('resources');
+  const result = await resourcedb.create({ url: 'hogehoge' });
   res.status(200).json({
     message: 'Hello from root!',
   });
