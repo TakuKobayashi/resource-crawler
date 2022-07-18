@@ -58,7 +58,9 @@ const serverlessConfiguration: AWS = {
           ],
           Resource: [
             // 'arn:aws:dynamodb:[region名]:[accountid]:table/[テーブル名]'
-            'arn:aws:dynamodb:${aws:region}:${aws:accountId}:*'
+            // ${aws:region}でregion名の変数、${aws:accountId}でaccountIdの変数が設定される'
+            'arn:aws:dynamodb:${aws:region}:${aws:accountId}:*',
+            // 'arn:aws:dynamodb:*:*:*' 全部ワイルドカードでもOK
           ],
         }],
       },
