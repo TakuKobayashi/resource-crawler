@@ -22,6 +22,7 @@
     "flickr-sdk": "^6.0.0",
     "jimp": "^0.16.1",
     "node-dynamodb-orm": "^0.3.0",
+    "twitter-api-v2": "^1.12.3",
     "twitter-promise": "^1.2.0",
     "url": "^0.11.0",
     "uuid": "^8.3.2",
