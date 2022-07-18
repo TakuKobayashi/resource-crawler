@@ -51,18 +51,18 @@ const serverlessConfiguration: AWS = {
     },
     iam: {
       role: {
-        statements: [{
-          Effect: 'Allow',
-          Action: [
-            'dynamodb:*',
-          ],
-          Resource: [
-            // 'arn:aws:dynamodb:[region名]:[accountid]:table/[テーブル名]'
-            // ${aws:region}でregion名の変数、${aws:accountId}でaccountIdの変数が設定される'
-            'arn:aws:dynamodb:${aws:region}:${aws:accountId}:*',
-            // 'arn:aws:dynamodb:*:*:*' 全部ワイルドカードでもOK
-          ],
-        }],
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['dynamodb:*'],
+            Resource: [
+              // 'arn:aws:dynamodb:[region名]:[accountid]:table/[テーブル名]'
+              // ${aws:region}でregion名の変数、${aws:accountId}でaccountIdの変数が設定される'
+              'arn:aws:dynamodb:${aws:region}:${aws:accountId}:*',
+              // 'arn:aws:dynamodb:*:*:*' 全部ワイルドカードでもOK
+            ],
+          },
+        ],
       },
     },
   },
