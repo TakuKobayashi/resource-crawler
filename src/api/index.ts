@@ -19,6 +19,14 @@ import { twitterSearchRouter } from './routes/twitter/search';
 import { websiteScrapeRouter } from './routes/website/scrape';
 import { youtubeVideoRouter } from './routes/youtube/video';
 
+console.log(process.env);
+// OFFLINEならばLOCDALを参照してそうじゃなければAWS上にあるDynamoDBを参照する
+if (process.env.IS_OFFLINE) {
+  DynamoDBORM.updateConfig({region: "ap-northeast-1", endpoint: "http://localhost:8000"})
+} else {
+  DynamoDBORM.updateConfig({region: "ap-northeast-1", accessKeyId: process.env.AWS_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY})
+}
+
 const app = express();
 
 app.use(bodyParser.text({ type: '*/*' }));
@@ -44,10 +52,6 @@ app.get('/test', (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.get('/dbtest', async (req: Request, res: Response, next: NextFunction) => {
-  // Localにアクセスする場合
-  DynamoDBORM.updateConfig({region: "ap-northeast-1", endpoint: "http://localhost:8000"})
-  // productionの方にアクセスする場合
-  // DynamoDBORM.updateConfig({region: "ap-northeast-1", accessKeyId: "", secretAccessKey: ""})
   const resourcedb = new DynamoDBORM("resources");
   const result = await resourcedb.create({url: "hogehoge"})
   res.status(200).json({
