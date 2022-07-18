@@ -68,6 +68,7 @@ const serverlessConfiguration: AWS = {
   },
   resources: {
     Resources: {
+      // ここの名前はCloudformationで使われているので変更すると一回エラーが出ちゃうので注意が必要
       resourcesTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
