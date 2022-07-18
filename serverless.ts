@@ -77,11 +77,19 @@ const serverlessConfiguration: AWS = {
               AttributeName: 'url',
               AttributeType: 'S',
             },
+            {
+              AttributeName: 'from_url',
+              AttributeType: 'S',
+            },
           ],
           KeySchema: [
             {
               AttributeName: 'url',
               KeyType: 'HASH',
+            },
+            {
+              AttributeName: 'from_url',
+              KeyType: 'RANGE',
             },
           ],
           ProvisionedThroughput: {
