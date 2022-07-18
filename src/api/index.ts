@@ -19,7 +19,6 @@ import { twitterSearchRouter } from './routes/twitter/search';
 import { websiteScrapeRouter } from './routes/website/scrape';
 import { youtubeVideoRouter } from './routes/youtube/video';
 
-console.log(process.env);
 // OFFLINEならばLOCDALを参照してそうじゃなければAWS上にあるDynamoDBを参照する
 if (process.env.IS_OFFLINE) {
   DynamoDBORM.updateConfig({ region: process.env.AWS_REGION, endpoint: 'http://localhost:8000' });
