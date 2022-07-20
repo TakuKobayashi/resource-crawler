@@ -79,7 +79,7 @@ const serverlessConfiguration: AWS = {
               AttributeType: 'S',
             },
             {
-              AttributeName: 'from_url',
+              AttributeName: 'from_keyword',
               AttributeType: 'S',
             },
           ],
@@ -89,7 +89,7 @@ const serverlessConfiguration: AWS = {
               KeyType: 'HASH',
             },
             {
-              AttributeName: 'from_url',
+              AttributeName: 'from_keyword',
               KeyType: 'RANGE',
             },
           ],

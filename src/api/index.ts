@@ -54,7 +54,7 @@ app.get('/test', (req: Request, res: Response, next: NextFunction) => {
 
 app.get('/dbtest', async (req: Request, res: Response, next: NextFunction) => {
   const resourcedb = new DynamoDBORM('resources');
-  const result = await resourcedb.create({ url: 'hogehoge', from_url: 'pppp' });
+  const result = await resourcedb.create({ url: 'hogehoge', from_keyword: 'pppp' });
   res.status(200).json({
     message: 'Hello from root!',
   });
