@@ -82,6 +82,14 @@ const serverlessConfiguration: AWS = {
               AttributeName: 'from_keyword',
               AttributeType: 'S',
             },
+            {
+              AttributeName: 'from_url',
+              AttributeType: 'S',
+            },
+            {
+              AttributeName: 'perceptual_hash',
+              AttributeType: 'S',
+            },
           ],
           KeySchema: [
             {
