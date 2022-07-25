@@ -161,3 +161,67 @@ const serverlessConfiguration: AWS = {
 また上記のような設定を行っておくと `serverless deploy` コマンドを実行した場合、[DynamoDB](https://aws.amazon.com/jp/dynamodb/)の定義情報も自動的に反映されます。
 反映されているかどうかはAWSコンソール側の[DynamoDB](https://aws.amazon.com/jp/dynamodb/)のテーブル情報からでも確認できます。
 また `serverless remove` を実行するとここで作成された[DynamoDB](https://aws.amazon.com/jp/dynamodb/)のテーブルも自動的に削除されます。
+
+#### [IAM](https://aws.amazon.com/jp/iam/) の設定
+
+上記の [DynamoDB](https://aws.amazon.com/jp/dynamodb/) でのテーブル作成、設定ではLocal環境でのみ使用できます。これを実際に `serverless deploy` をして[AWS Lambda](https://aws.amazon.com/jp/lambda/)上で稼働させた場合,
+`Pemission error` が発生して利用することができません。
+ここで利用できるようにするためには[IAM](https://aws.amazon.com/jp/iam/)を適切に設定して[AWS Lambda](https://aws.amazon.com/jp/lambda/)から[DynamoDB](https://aws.amazon.com/jp/dynamodb/)を使用できるようにする必要があります。
+結果的に以下のように [serverless.ts](./serverless.ts) にて設定します。
+
+```typescript
+const serverlessConfiguration: AWS = {
+  provider: {
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: ['dynamodb:*'],
+            Resource: [
+              'arn:aws:dynamodb:${aws:region}:${aws:accountId}:*',
+            ],
+          },
+        ],
+      },
+    },
+  }
+}
+```
+
+ここで `Action: ['dynamodb:*']` これは `dynamodb:PutItem` などの各種操作を全てを選択しています。
+`arn:aws:dynamodb:${aws:region}:${aws:accountId}:*` ここでは `arn:aws:dynamodb:[region名]:[accountid]:table/[テーブル名]` といったルールでこの値を設定します。
+`arn:aws:dynamodb:*:*:*` このような全てワイルドカードでもOK。しかし、なるべく指定して設定する方がいいです。
+`${aws:region}:${aws:accountId}` ではそれぞれ、ここの値は環境ごとに異なるので、それぞれ `serverless deploy` を行なったときに設定している環境の値の変数を取得して代入してくれる変数になります。
+これらの設定を行なった上で `serverless deploy` を行うと [IAM](https://aws.amazon.com/jp/iam/) のロールに[DynamoDB](https://aws.amazon.com/jp/dynamodb/)へのアクセス権が自動的に追加、作成されます。(確認は コンソールにログインして `IAM` → `ロール` と選択すると一覧が表示されるのでAWS Lambdaに設定されている名前で検索すると対応したIAMの設定が表示されます。その後 `許可ポリシー` 該当の`ポリシー名` の項目を設定すると 上記の [serverless.ts](./serverless.ts) にて設定したルールが設定されていることが確認できます。)
+
+IAMがしっかり設定されている状態にて [aws-sdk](https://github.com/aws/aws-sdk-js) を使って以下のようにすることで接続することができます。([aws-sdk](https://github.com/aws/aws-sdk-js) V2の場合)
+
+```typescript
+import * as AWS from 'aws-sdk';
+const dynamodb = new AWS.DynamoDB({region: 'ap-northeast-1'});
+```
+
+なお、[aws-sdk v3](https://github.com/aws/aws-sdk-js-v3) の場合は以下のような形で使用できます。
+
+```typescript
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+const dynamodb = new DynamoDBClient({region: 'ap-northeast-1'});
+```
+
+ローカルで使用する場合とは初期化の時の値 `new DynamoDBClient({region: 'ap-northeast-1'})` の部分がことなるので、以下のように `process.env.IS_OFFLINE` を使って切り替えるようにしてください。
+
+```typescript
+if (process.env.IS_OFFLINE) {
+// ローカルの場合の処理
+} else {
+// ローカルではない場合の処理
+}
+```
+
+##### 参考
+
+* [AWS Lambda: Lambda 関数に Amazon DynamoDB テーブルへのアクセスを許可する](https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/reference_policies_examples_lambda-access-dynamodb.html)
+* [IAM Permissions For Functions](https://www.serverless.com/framework/docs/providers/aws/guide/iam)
+* [serverless.tsで書くAWS Lambda + Node.js + express](https://zenn.dev/utokka/articles/3d0986f2e30347)
+* [Serverless アプリケーションをローカルで開発する](https://qiita.com/noralife/items/e36621ddd0e5b8ff4447)
