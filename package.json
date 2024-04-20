@@ -4,7 +4,9 @@
   "main": "handler.js",
   "scripts": {
     "format": "prettier --config .prettierrc --write \"src/**/*.{ts,js}\"",
-    "docs": "typedoc --tsconfig tsconfig.json --entryPoints src/**/*.ts --out docs/"
+    "docs": "typedoc --tsconfig tsconfig.json --entryPoints src/**/*.ts --out docs/",
+    "ts-node": "ts-node",
+    "crawler": "ts-node src/cli.ts"
   },
   "author": "TakuKobayashi",
   "private": true,
