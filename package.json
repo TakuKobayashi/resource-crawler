@@ -6,7 +6,8 @@
     "format": "prettier --config .prettierrc --write \"src/**/*.{ts,js}\"",
     "docs": "typedoc --tsconfig tsconfig.json --entryPoints src/**/*.ts --out docs/",
     "ts-node": "ts-node",
-    "crawler": "ts-node src/cli.ts"
+    "crawler": "ts-node src/cli.ts",
+    "sequelize": "sequelize"
   },
   "author": "TakuKobayashi",
   "private": true,
@@ -16,7 +17,9 @@
     "fastimage": "^5.0.5",
     "flickr-sdk": "^6.3.0",
     "jimp": "^0.22.12",
+    "mysql2": "^3.9.7",
     "puppeteer": "^22.6.5",
+    "sequelize": "^6.37.3",
     "uuid": "^9.0.1",
     "ytdl-core": "^4.11.5"
   },
@@ -28,6 +31,7 @@
     "documentation": "^14.0.3",
     "dotenv": "^16.4.5",
     "prettier": "^3.2.5",
+    "sequelize-cli": "^6.6.2",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
     "typescript": "^5.4.5",
