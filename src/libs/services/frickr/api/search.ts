@@ -1,4 +1,4 @@
-import { FlickrImageResource } from './interfaces/resource-result';
+import { FlickrImageResource } from '../../../interfaces/resource-result';
 const Flickr = require('flickr-sdk');
 
 const FLICKR_PHOTO_ROOT_URL = 'https://www.flickr.com/photos/';

@@ -16,6 +16,7 @@
     "fastimage": "^5.0.5",
     "flickr-sdk": "^6.3.0",
     "jimp": "^0.22.12",
+    "puppeteer": "^22.6.5",
     "uuid": "^9.0.1",
     "ytdl-core": "^4.11.5"
   },
