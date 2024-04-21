@@ -1,5 +1,3 @@
-//const requireRoot = require('app-root-path').require;
-//const util = requireRoot('/libs/util');
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { tryParseJSON } from '../../../util';
@@ -13,11 +11,22 @@ export async function searchInstagramImagesFromUserName({ userName }: { userName
   const $ = cheerio.load(response.data);
   $('script').each((i, item) => {
     const json = tryParseJSON($(item).text());
-    console.log(json);
+    if (json) {
+      const arr = json.require || [];
+      console.log(JSON.stringify(arr));
+    }
   });
 }
 
-export async function loadImagesQuery({ docId, instagramUserId, pageCursor }: { docId: string; instagramUserId: string; pageCursor: string }) {
+export async function loadImagesQuery({
+  docId,
+  instagramUserId,
+  pageCursor,
+}: {
+  docId: string;
+  instagramUserId: string;
+  pageCursor: string;
+}) {
   const queryUrl = new URL(INSTAGRAM_ROOT_URL);
   queryUrl.pathname = '/graphql/query/';
   const variableObj = { id: instagramUserId, after: pageCursor, first: 50 };
