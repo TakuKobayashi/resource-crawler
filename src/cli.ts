@@ -2,7 +2,8 @@ import { program, Command } from 'commander';
 import puppeteer from 'puppeteer';
 import packageJson from '../package.json';
 import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/frickr/api/search';
-import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
+//import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
+import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
 import { config } from 'dotenv';
 config();
 
