@@ -11,7 +11,7 @@ export async function searchInstagramImagesFromUserName({ userName }: { userName
   await page.setRequestInterception(true);
   page.on('request', async (request) => {
     const responseUrl = new URL(request.url());
-    if (responseUrl.pathname !== '/api/graphql') {
+    if (responseUrl.pathname === '/api/graphql') {
       console.log({
         method: request.method(),
         url: request.url(),
@@ -28,7 +28,7 @@ export async function searchInstagramImagesFromUserName({ userName }: { userName
     }
     const json = await response.json();
     console.log({
-      method: response.request().method,
+      method: response.request().method(),
       url: response.url(),
       headers: response.headers(),
       status: response.status(),
