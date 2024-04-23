@@ -4,8 +4,11 @@ import packageJson from '../package.json';
 import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/frickr/api/search';
 //import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
 import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
+import models from './sequelize/models';
 import { config } from 'dotenv';
 config();
+import { ServiceTypes } from './sequelize/enums/service-types';
+import { WordTypes } from './sequelize/enums/word-types';
 
 /**
  * Set global CLI configurations
@@ -14,21 +17,29 @@ program.storeOptionsAsProperties(false);
 
 program.version(packageJson.version, '-v, --version');
 
-const downloadCommand = new Command('download');
-downloadCommand.description('downlooad');
+const crawlCommand = new Command('crawl');
+crawlCommand.description('crawl');
 
-downloadCommand
+crawlCommand
   .command('flickr')
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
   .action(async (options: any) => {
-    const flickrPhotos = await searchFlickrPhotos({ text: options.keyword });
+    const keyword = await models.Keyword.findOrCreate({
+      where: {
+        service_type: ServiceTypes.flickr,
+        word_type: WordTypes.searchword,
+        word: options.keyword,
+      },
+    });
+    console.log(keyword);
+    const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
     const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
     console.log(flickrPhotos);
     console.log(flickrImageResources);
   });
 
-downloadCommand
+crawlCommand
   .command('instagram')
   .description('')
   .option('-u, --username <username>', `検索するユーザー名`)
@@ -36,7 +47,7 @@ downloadCommand
     await searchInstagramImagesFromUserName({ userName: options.username });
   });
 
-program.addCommand(downloadCommand);
+program.addCommand(crawlCommand);
 
 program
   .command('pupperteer')

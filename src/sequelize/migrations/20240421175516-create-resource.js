@@ -1,5 +1,6 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
+const { ResourceTypes } = require('../enums/resource-types');
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('resources', {
@@ -7,7 +8,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
       },
       title: {
         allowNull: false,
@@ -15,12 +16,12 @@ module.exports = {
         defaultValue: '',
       },
       content_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
       },
       resource_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        defaultValue: ResourceTypes.text,
       },
       url: {
         allowNull: false,

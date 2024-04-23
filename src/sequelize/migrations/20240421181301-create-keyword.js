@@ -1,4 +1,8 @@
 'use strict';
+
+const { ServiceTypes } = require('../enums/service-types');
+const { WordTypes } = require('../enums/word-types');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -7,18 +11,19 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
       },
       // frickr, instagram の他の予定
       service_type: {
+        allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        defaultValue: ServiceTypes.unknown,
       },
       // username, searchword, url の予定
       word_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        defaultValue: WordTypes.url,
       },
       word: {
         allowNull: false,

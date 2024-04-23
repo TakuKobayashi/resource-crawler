@@ -1,5 +1,7 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
+const { ServiceTypes } = require('../enums/service-types');
+const { WordTypes } = require('../enums/word-types');
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('scrapers', {
@@ -12,13 +14,13 @@ module.exports = {
       // frickr, instagram の他の予定
       service_type: {
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        defaultValue: ServiceTypes.unknown,
       },
       // username, searchword, url の予定
       word_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        defaultValue: 0,
+        defaultValue: WordTypes.url,
       },
       last_keyword_id: {
         type: Sequelize.INTEGER,

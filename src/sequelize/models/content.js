@@ -8,7 +8,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
       this.hasMany(models.Resource, { foreignKey: 'content_id', as: 'resources' });
       this.hasOne(models.ContentDetail, { foreignKey: 'content_id', as: 'detail' });
     }
@@ -26,7 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'content',
+      modelName: 'Content',
+      tableName: 'contents',
+      timestamps: false,
     },
   );
   return Content;

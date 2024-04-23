@@ -22,7 +22,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'scraper',
+      modelName: 'Scraper',
+      tableName: 'scrapers',
+      timestamps: false,
     },
   );
   return Scraper;

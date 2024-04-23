@@ -25,7 +25,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'keyword',
+      modelName: 'Keyword',
+      tableName: 'keywords',
+      timestamps: false,
     },
   );
   return Keyword;
