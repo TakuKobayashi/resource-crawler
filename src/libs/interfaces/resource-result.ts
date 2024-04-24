@@ -36,6 +36,7 @@ export interface TwitterImageResource extends ImageResource {
 }
 
 export interface FlickrImageResource extends ImageResource {
+  user_id: string;
   user_name: string;
   title: string;
   describe: string;

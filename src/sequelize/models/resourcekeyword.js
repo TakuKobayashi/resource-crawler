@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   ResourceKeyword.init(
     {
-      resource_id: DataTypes.INTEGER,
+      resource_id: DataTypes.STRING,
       keyword_id: DataTypes.INTEGER,
       score: DataTypes.FLOAT,
     },

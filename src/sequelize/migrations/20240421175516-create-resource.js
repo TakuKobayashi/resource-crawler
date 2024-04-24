@@ -6,17 +6,14 @@ module.exports = {
     await queryInterface.createTable('resources', {
       id: {
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
       },
       title: {
         allowNull: false,
         type: Sequelize.STRING,
         defaultValue: '',
-      },
-      content_id: {
-        type: Sequelize.BIGINT,
       },
       resource_type: {
         allowNull: false,
@@ -29,7 +26,6 @@ module.exports = {
       },
     });
     await queryInterface.addIndex('resources', ['url'], { unique: true });
-    await queryInterface.addIndex('resources', ['content_id']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resources');

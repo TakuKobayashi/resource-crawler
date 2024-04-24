@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.BIGINT,
       },
       resource_id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       save_path: {

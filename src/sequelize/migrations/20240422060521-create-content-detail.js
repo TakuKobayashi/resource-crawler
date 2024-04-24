@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.BIGINT,
       },
       content_id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       tags: {

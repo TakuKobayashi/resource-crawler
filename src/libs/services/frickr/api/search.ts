@@ -19,10 +19,12 @@ export async function searchFlickrPhotos(searchObj: { [s: string]: any }) {
 
 export function convertToPhotoToObject(flickrPhoto): FlickrImageResource {
   const rootWebsiteUrl = FLICKR_PHOTO_ROOT_URL + flickrPhoto.owner.toString() + '/' + flickrPhoto.id.toString() + '/';
+  console.log(flickrPhoto);
   return {
     id: flickrPhoto.id,
     website_url: rootWebsiteUrl,
-    user_name: flickrPhoto.owner,
+    user_id: flickrPhoto.owner,
+    user_name: flickrPhoto.ownername,
     title: flickrPhoto.title,
     describe: flickrPhoto.description,
     tags: flickrPhoto.tags,

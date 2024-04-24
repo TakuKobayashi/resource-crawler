@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   ResourceArchive.init(
     {
-      resource_id: DataTypes.INTEGER,
+      resource_id: DataTypes.STRING,
       save_path: DataTypes.STRING,
       resource_hash: DataTypes.STRING,
     },
