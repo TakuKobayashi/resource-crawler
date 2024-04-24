@@ -9,7 +9,9 @@ import { config } from 'dotenv';
 config();
 import { ServiceTypes } from './sequelize/enums/service-types';
 import { WordTypes } from './sequelize/enums/word-types';
-
+import { ResourceTypes } from './sequelize/enums/resource-types';
+type ServiceTypeNames = typeof ServiceTypes;
+type WordTypeNames = typeof WordTypes;
 /**
  * Set global CLI configurations
  */
@@ -20,23 +22,51 @@ program.version(packageJson.version, '-v, --version');
 const crawlCommand = new Command('crawl');
 crawlCommand.description('crawl');
 
+const searchKeywordRoutine = async ({
+  serviceType,
+  wordType,
+  word,
+  execution,
+}: {
+  serviceType: ServiceTypeNames;
+  wordType: WordTypeNames;
+  word: string;
+  execution: (keyword) => {};
+}) => {
+  const [keyword, isCreated] = await models.Keyword.findOrCreate({
+    where: {
+      service_type: ServiceTypes[serviceType],
+      word_type: WordTypes[wordType],
+      word: word,
+    },
+  });
+  const resourceModels = await execution(keyword);
+  await models.Resource.bulkCreate(resourceModels);
+};
+
 crawlCommand
   .command('flickr')
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
   .action(async (options: any) => {
-    const keyword = await models.Keyword.findOrCreate({
-      where: {
-        service_type: ServiceTypes.flickr,
-        word_type: WordTypes.searchword,
-        word: options.keyword,
+    searchKeywordRoutine({
+      serviceType: 'flickr',
+      wordType: 'searchword',
+      word: options.keyword,
+      execution: async (keyword) => {
+        const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
+        const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
+        return flickrImageResources.map((flickrImageResource) => {
+          return {
+            title: flickrImageResource.title,
+            content_id: null,
+            resource_type: ResourceTypes.image,
+            url: flickrImageResource.image_url,
+            flickrImageResources,
+          };
+        });
       },
     });
-    console.log(keyword);
-    const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
-    const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-    console.log(flickrPhotos);
-    console.log(flickrImageResources);
   });
 
 crawlCommand
