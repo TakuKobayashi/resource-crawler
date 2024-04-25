@@ -17,6 +17,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      filesize: {
+        type: Sequelize.BIGINT,
+      },
       resource_hash: {
         type: Sequelize.STRING,
       },

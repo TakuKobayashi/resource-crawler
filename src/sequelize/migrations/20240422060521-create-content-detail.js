@@ -9,8 +9,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      content_id: {
-        type: Sequelize.BIGINT,
+      content_uuid: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       tags: {
@@ -20,7 +20,7 @@ module.exports = {
         type: Sequelize.TEXT,
       },
     });
-    await queryInterface.addIndex('content_details', ['content_id'], { unique: true });
+    await queryInterface.addIndex('content_details', ['content_uuid'], { unique: true });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('content_details');

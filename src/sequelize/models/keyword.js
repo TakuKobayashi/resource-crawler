@@ -11,7 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(models.Resource, {
         through: models.ResourceKeyword,
         foreignKey: 'keyword_id',
-        otherKey: 'resource_id',
+        otherKey: 'resource_uuid',
+        targetKey: 'uuid',
         as: 'resources',
       });
       this.hasMany(models.ResourceKeyword, { foreignKey: 'keyword_id', as: 'resource_keywords' });

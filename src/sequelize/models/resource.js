@@ -8,15 +8,24 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.Content, { foreignKey: 'content_id', as: 'content' });
       this.belongsToMany(models.Keyword, {
         through: models.ResourceKeyword,
-        foreignKey: 'resource_id',
+        foreignKey: 'resource_uuid',
+        sourceKey: 'uuid',
         otherKey: 'keyword_id',
         as: 'keywords',
       });
+      this.belongsToMany(models.Content, {
+        through: models.ResourceContent,
+        foreignKey: 'resource_uuid',
+        sourceKey: 'uuid',
+        otherKey: 'content_uuid',
+        targetKey: 'uuid',
+        as: 'contents',
+      });
       this.hasOne(models.ResourceArchive, { foreignKey: 'resource_id', as: 'archive' });
-      this.hasMany(models.ResourceKeyword, { foreignKey: 'resource_id', as: 'resources' });
+      this.hasMany(models.ResourceKeyword, { foreignKey: 'resource_uuid', sourceKey: 'uuid', as: 'resource_keywords' });
+      this.hasMany(models.ResourceContent, { foreignKey: 'resource_uuid', sourceKey: 'uuid', as: 'resource_contents' });
     }
   }
   Resource.init(

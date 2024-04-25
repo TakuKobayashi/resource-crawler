@@ -9,8 +9,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      resource_id: {
-        type: Sequelize.BIGINT,
+      resource_uuid: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       keyword_id: {
@@ -23,7 +23,7 @@ module.exports = {
         defaultValue: 0,
       },
     });
-    await queryInterface.addIndex('resource_keywords', ['resource_id']);
+    await queryInterface.addIndex('resource_keywords', ['resource_uuid']);
     await queryInterface.addIndex('resource_keywords', ['keyword_id']);
   },
   async down(queryInterface, Sequelize) {

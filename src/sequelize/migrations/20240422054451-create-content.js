@@ -9,7 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      // frickr, instagram の他の予定
+      uuid: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       service_type: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -41,7 +44,8 @@ module.exports = {
         type: Sequelize.FLOAT,
       },
     });
-    await queryInterface.addIndex('contents', ['website_url']);
+    await queryInterface.addIndex('contents', ['website_url'], { unique: true });
+    await queryInterface.addIndex('contents', ['uuid'], { unique: true });
     await queryInterface.addIndex('contents', ['service_content_id', 'service_type']);
     await queryInterface.addIndex('contents', ['service_user_id', 'service_type']);
   },

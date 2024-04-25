@@ -13,13 +13,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      // frickr, instagram の他の予定
       service_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
         defaultValue: ServiceTypes.unknown,
       },
-      // username, searchword, url の予定
       word_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
