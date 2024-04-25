@@ -18,8 +18,8 @@ module.exports = {
         allowNull: false,
       },
     });
+    await queryInterface.addIndex('resource_contents', ['content_id', 'resource_id'], { unique: true });
     await queryInterface.addIndex('resource_contents', ['resource_id']);
-    await queryInterface.addIndex('resource_contents', ['content_id']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resource_contents');
