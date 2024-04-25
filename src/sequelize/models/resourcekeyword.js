@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.Resource, { foreignKey: 'resource_uuid', sourceKey: 'uuid', as: 'resource' });
+      this.belongsTo(models.Resource, { foreignKey: 'resource_id', as: 'resource' });
       this.belongsTo(models.Keyword, { foreignKey: 'keyword_id', as: 'keyword' });
     }
   }
   ResourceKeyword.init(
     {
-      resource_uuid: DataTypes.STRING,
+      resource_id: DataTypes.INTEGER,
       keyword_id: DataTypes.INTEGER,
       score: DataTypes.FLOAT,
     },

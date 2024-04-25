@@ -9,12 +9,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      resource_uuid: {
-        type: Sequelize.STRING,
+      resource_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
       keyword_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
       score: {
@@ -23,7 +23,7 @@ module.exports = {
         defaultValue: 0,
       },
     });
-    await queryInterface.addIndex('resource_keywords', ['resource_uuid']);
+    await queryInterface.addIndex('resource_keywords', ['resource_id']);
     await queryInterface.addIndex('resource_keywords', ['keyword_id']);
   },
   async down(queryInterface, Sequelize) {

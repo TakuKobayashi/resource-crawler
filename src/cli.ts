@@ -48,8 +48,10 @@ const searchKeywordRoutine = async ({
     },
   });
   const contentResources = await execution(keyword);
-  await models.Content.bulkCreate(contentResources.contents, { updateOnDuplicate: ['website_url'] });
-  await models.Resource.bulkCreate(contentResources.resources, { updateOnDuplicate: ['url'] });
+  const contents = await models.Content.bulkCreate(contentResources.contents, { updateOnDuplicate: ['website_url'] });
+  console.log(contents);
+  const resources = await models.Resource.bulkCreate(contentResources.resources, { updateOnDuplicate: ['url'] });
+  console.log(resources);
 };
 
 crawlCommand
@@ -71,6 +73,7 @@ crawlCommand
         };
         for (const flickrImageResource of flickrImageResources) {
           const uuid = uuidv4();
+          console.log(uuid)
           results.contents.push({
             uuid: uuid,
             service_type: keyword.service_type,

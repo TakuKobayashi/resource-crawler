@@ -8,14 +8,14 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      this.belongsTo(models.Resource, { foreignKey: 'resource_uuid', sourceKey: 'uuid', as: 'resource' });
-      this.belongsTo(models.Content, { foreignKey: 'content_uuid', sourceKey: 'uuid', as: 'content' });
+      this.belongsTo(models.Resource, { foreignKey: 'resource_id', as: 'resource' });
+      this.belongsTo(models.Content, { foreignKey: 'content_id', as: 'content' });
     }
   }
   ResourceContent.init(
     {
-      resource_uuid: DataTypes.STRING,
-      content_uuid: DataTypes.STRING,
+      resource_uuid: DataTypes.INTEGER,
+      content_uuid: DataTypes.INTEGER,
     },
     {
       sequelize,

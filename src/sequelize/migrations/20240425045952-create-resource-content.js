@@ -7,21 +7,21 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
-      resource_uuid: {
-        type: Sequelize.STRING,
+      resource_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
-      content_uuid: {
-        type: Sequelize.STRING,
+      content_id: {
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
     });
-    await queryInterface.addIndex('resource_contents', ['resource_uuid']);
-    await queryInterface.addIndex('resource_contents', ['content_uuid']);
+    await queryInterface.addIndex('resource_contents', ['resource_id']);
+    await queryInterface.addIndex('resource_contents', ['content_id']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resource_contents');
-  },
+  }
 };

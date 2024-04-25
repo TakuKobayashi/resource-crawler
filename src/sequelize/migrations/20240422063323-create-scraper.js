@@ -23,7 +23,7 @@ module.exports = {
         defaultValue: WordTypes.url,
       },
       last_keyword_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
       },
       last_request_url: {

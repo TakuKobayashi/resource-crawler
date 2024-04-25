@@ -10,14 +10,12 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsToMany(models.Resource, {
         through: models.ResourceContent,
-        foreignKey: 'content_uuid',
-        sourceKey: 'uuid',
-        otherKey: 'resource_uuid',
-        targetKey: 'uuid',
+        foreignKey: 'content_id',
+        otherKey: 'resource_id',
         as: 'resources',
       });
-      this.hasMany(models.ResourceContent, { foreignKey: 'content_uuid', sourceKey: 'uuid', as: 'resource_contents' });
-      this.hasOne(models.ContentDetail, { foreignKey: 'content_uuid', sourceKey: 'uuid', as: 'detail' });
+      this.hasMany(models.ResourceContent, { foreignKey: 'content_id', as: 'resource_contents' });
+      this.hasOne(models.ContentDetail, { foreignKey: 'content_id', as: 'detail' });
     }
   }
   Content.init(

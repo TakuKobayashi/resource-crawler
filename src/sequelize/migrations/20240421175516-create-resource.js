@@ -10,10 +10,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.BIGINT,
       },
-      uuid: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
       resource_type: {
         allowNull: false,
         type: Sequelize.INTEGER,
@@ -25,7 +21,6 @@ module.exports = {
       },
     });
     await queryInterface.addIndex('resources', ['url'], { unique: true });
-    await queryInterface.addIndex('resources', ['uuid'], { unique: true });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resources');
