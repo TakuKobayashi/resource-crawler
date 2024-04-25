@@ -24,7 +24,7 @@ const crawlCommand = new Command('crawl');
 crawlCommand.description('crawl');
 
 interface ExecuteResultModels {
-  [id: string]: {
+  [resourceUrl: string]: {
     resource: any;
     content: any;
   };
@@ -48,8 +48,8 @@ const searchKeywordRoutine = async ({
       word: word,
     },
   });
-  const idContentResources = await execution(keyword);
-  const contentResources = Object.values(idContentResources);
+  const resourceUrlContentResources = await execution(keyword);
+  const contentResources = Object.values(resourceUrlContentResources);
   await models.Content.bulkCreate(
     contentResources.map((contentResource) => contentResource.content),
     { updateOnDuplicate: ['website_url'] },
@@ -65,17 +65,23 @@ const searchKeywordRoutine = async ({
   const createdResources = await models.Resource.findAll({
     where: { url: contentResources.map((contentResource) => contentResource.resource.url) },
   });
-  for (const createdContent of createdContents) {
-    const contentResource = idContentResources[createdContent.service_content_id];
-    const resourceModel = createdResources.find((createdResource) => contentResource.resource.url === createdResource.url);
-    if (resourceModel) {
+  for (const createdResource of createdResources) {
+    const contentResource = resourceUrlContentResources[createdResource.url];
+    const contentModel = createdContents.find((createdContent) => contentResource.content.website_url === createdContent.website_url);
+    if (contentModel) {
       resourceContentsData.push({
-        content_id: createdContent.id,
-        resource_id: resourceModel.id,
+        content_id: contentModel.id,
+        resource_id: createdResource.id,
       });
     }
   }
-  await models.ResourceContent.bulkCreate(resourceContentsData);
+  await models.ResourceContent.bulkCreate(resourceContentsData, { updateOnDuplicate: ['content_id'] });
+  // ずれたauto_incrementの値を元に戻す
+  await Promise.all([
+    models.sequelize.query(`ALTER TABLE \`${models.Content.tableName}\` auto_increment = 1;`),
+    models.sequelize.query(`ALTER TABLE \`${models.Resource.tableName}\` auto_increment = 1;`),
+    models.sequelize.query(`ALTER TABLE \`${models.ResourceContent.tableName}\` auto_increment = 1;`),
+  ]);
 };
 
 crawlCommand
@@ -92,7 +98,7 @@ crawlCommand
         const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
         const results: ExecuteResultModels = {};
         for (const flickrImageResource of flickrImageResources) {
-          results[flickrImageResource.id] = {
+          results[flickrImageResource.image_url] = {
             content: {
               service_type: keyword.service_type,
               title: flickrImageResource.title,
