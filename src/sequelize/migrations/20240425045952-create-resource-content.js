@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.BIGINT,
       },
       resource_id: {
         type: Sequelize.BIGINT,
@@ -23,5 +23,5 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resource_contents');
-  }
+  },
 };

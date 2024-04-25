@@ -27,7 +27,6 @@ module.exports = (sequelize, DataTypes) => {
   }
   Resource.init(
     {
-      content_id: DataTypes.INTEGER,
       resource_type: DataTypes.INTEGER,
       url: DataTypes.STRING,
     },

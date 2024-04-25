@@ -24,9 +24,10 @@ const crawlCommand = new Command('crawl');
 crawlCommand.description('crawl');
 
 interface ExecuteResultModels {
-  resources: any[];
-  contents: any[];
-  resourceContents: any[];
+  [id: string]: {
+    resource: any;
+    content: any;
+  };
 }
 
 const searchKeywordRoutine = async ({
@@ -47,11 +48,34 @@ const searchKeywordRoutine = async ({
       word: word,
     },
   });
-  const contentResources = await execution(keyword);
-  const contents = await models.Content.bulkCreate(contentResources.contents, { updateOnDuplicate: ['website_url'] });
-  console.log(contents);
-  const resources = await models.Resource.bulkCreate(contentResources.resources, { updateOnDuplicate: ['url'] });
-  console.log(resources);
+  const idContentResources = await execution(keyword);
+  const contentResources = Object.values(idContentResources);
+  await models.Content.bulkCreate(
+    contentResources.map((contentResource) => contentResource.content),
+    { updateOnDuplicate: ['website_url'] },
+  );
+  await models.Resource.bulkCreate(
+    contentResources.map((contentResource) => contentResource.resource),
+    { updateOnDuplicate: ['url'] },
+  );
+  const resourceContentsData: { content_id: number; resource_id: number }[] = [];
+  const createdContents = await models.Content.findAll({
+    where: { website_url: contentResources.map((contentResource) => contentResource.content.website_url) },
+  });
+  const createdResources = await models.Resource.findAll({
+    where: { url: contentResources.map((contentResource) => contentResource.resource.url) },
+  });
+  for (const createdContent of createdContents) {
+    const contentResource = idContentResources[createdContent.service_content_id];
+    const resourceModel = createdResources.find((createdResource) => contentResource.resource.url === createdResource.url);
+    if (resourceModel) {
+      resourceContentsData.push({
+        content_id: createdContent.id,
+        resource_id: resourceModel.id,
+      });
+    }
+  }
+  await models.ResourceContent.bulkCreate(resourceContentsData);
 };
 
 crawlCommand
@@ -66,34 +90,24 @@ crawlCommand
       execution: async (keyword) => {
         const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
         const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-        const results: ExecuteResultModels = {
-          contents: [],
-          resources: [],
-          resourceContents: [],
-        };
+        const results: ExecuteResultModels = {};
         for (const flickrImageResource of flickrImageResources) {
-          const uuid = uuidv4();
-          console.log(uuid)
-          results.contents.push({
-            uuid: uuid,
-            service_type: keyword.service_type,
-            title: flickrImageResource.title,
-            website_url: flickrImageResource.website_url,
-            service_content_id: flickrImageResource.id,
-            service_user_id: flickrImageResource.user_id,
-            service_user_name: flickrImageResource.user_name,
-            latitude: flickrImageResource.latitude,
-            longitude: flickrImageResource.longitude,
-          });
-          results.resources.push({
-            uuid: uuid,
-            resource_type: ResourceTypes.image,
-            url: flickrImageResource.image_url,
-          });
-          results.resourceContents.push({
-            resource_uuid: uuid,
-            content_uuid: uuid,
-          });
+          results[flickrImageResource.id] = {
+            content: {
+              service_type: keyword.service_type,
+              title: flickrImageResource.title,
+              website_url: flickrImageResource.website_url,
+              service_content_id: flickrImageResource.id,
+              service_user_id: flickrImageResource.user_id,
+              service_user_name: flickrImageResource.user_name,
+              latitude: flickrImageResource.latitude,
+              longitude: flickrImageResource.longitude,
+            },
+            resource: {
+              resource_type: ResourceTypes.image,
+              url: flickrImageResource.image_url,
+            },
+          };
         }
         return results;
       },
