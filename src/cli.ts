@@ -7,7 +7,6 @@ import { searchInstagramImagesFromUserName } from './libs/services/instagram/htm
 import models from './sequelize/models';
 import { config } from 'dotenv';
 config();
-import { v4 as uuidv4 } from 'uuid';
 import { ServiceTypes } from './sequelize/enums/service-types';
 import { WordTypes } from './sequelize/enums/word-types';
 import { ResourceTypes } from './sequelize/enums/resource-types';
@@ -23,11 +22,6 @@ program.version(packageJson.version, '-v, --version');
 const crawlCommand = new Command('crawl');
 crawlCommand.description('crawl');
 
-interface ExecuteResultModels {
-  resources: any[];
-  contents: any[];
-}
-
 const searchKeywordRoutine = async ({
   serviceType,
   wordType,
@@ -37,7 +31,7 @@ const searchKeywordRoutine = async ({
   serviceType: ServiceTypeNames;
   wordType: WordTypeNames;
   word: string;
-  execution: (keyword) => Promise<ExecuteResultModels>;
+  execution: (keyword) => {};
 }) => {
   const [keyword, isCreated] = await models.Keyword.findOrCreate({
     where: {
@@ -46,9 +40,8 @@ const searchKeywordRoutine = async ({
       word: word,
     },
   });
-  const contentResources = await execution(keyword);
-  await models.Resource.bulkCreate(contentResources.resources, { updateOnDuplicate: ['url'] });
-  await models.Content.bulkCreate(contentResources.contents, { updateOnDuplicate: ['website_url'] });
+  const resourceModels = await execution(keyword);
+  await models.Resource.bulkCreate(resourceModels);
 };
 
 crawlCommand
@@ -63,31 +56,15 @@ crawlCommand
       execution: async (keyword) => {
         const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
         const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-        const results: ExecuteResultModels = {
-          contents: [],
-          resources: [],
-        };
-        for (const flickrImageResource of flickrImageResources) {
-          const uuid = uuidv4();
-          results.contents.push({
-            id: uuid,
-            service_type: keyword.service_type,
+        return flickrImageResources.map((flickrImageResource) => {
+          return {
             title: flickrImageResource.title,
-            website_url: flickrImageResource.website_url,
-            service_content_id: flickrImageResource.id,
-            service_user_id: flickrImageResource.user_id,
-            service_user_name: flickrImageResource.user_name,
-            latitude: flickrImageResource.latitude,
-            longitude: flickrImageResource.longitude,
-          });
-          results.resources.push({
-            id: uuid,
-            title: flickrImageResource.title,
+            content_id: null,
             resource_type: ResourceTypes.image,
             url: flickrImageResource.image_url,
-          });
-        }
-        return results;
+            flickrImageResources,
+          };
+        });
       },
     });
   });

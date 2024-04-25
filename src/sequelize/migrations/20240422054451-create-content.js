@@ -5,9 +5,9 @@ module.exports = {
     await queryInterface.createTable('contents', {
       id: {
         allowNull: false,
-        autoIncrement: false,
+        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.STRING,
+        type: Sequelize.BIGINT,
       },
       // frickr, instagram の他の予定
       service_type: {

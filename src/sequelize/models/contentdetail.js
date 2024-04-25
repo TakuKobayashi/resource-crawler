@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   ContentDetail.init(
     {
-      content_id: DataTypes.STRING,
+      content_id: DataTypes.INTEGER,
       tags: DataTypes.TEXT,
       description: DataTypes.TEXT,
     },
