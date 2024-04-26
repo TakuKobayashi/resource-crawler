@@ -54,6 +54,7 @@ crawlCommand
           resource_type: ResourceTypes.image,
           url: flickrImageResource.image_url,
         },
+        contentTags: flickrImageResource.tags.split(' '),
       };
     }
     await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });

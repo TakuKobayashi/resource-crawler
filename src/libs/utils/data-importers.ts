@@ -5,6 +5,7 @@ export interface ScrapedDataModels {
   [resourceUrl: string]: {
     resource: any;
     content: any;
+    contentTags: string[];
   };
 }
 
@@ -27,6 +28,7 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
     where: { url: importResourceModels.map((resourceModel) => resourceModel.url) },
   });
   const resourceContentsData: { content_id: number; resource_id: number }[] = [];
+  const contentTagsData: { content_id: number; tag: string }[] = [];
   const resourceKeywordsData: { keyword_id: number; resource_id: number }[] = [];
   for (const createdResource of createdResources) {
     const contentResource = scrapedDataModels[createdResource.url];
@@ -36,6 +38,12 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
         content_id: contentModel.id,
         resource_id: createdResource.id,
       });
+      for (const tag of contentResource.contentTags) {
+        contentTagsData.push({
+          content_id: contentModel.id,
+          tag: tag,
+        });
+      }
     }
     resourceKeywordsData.push({
       resource_id: createdResource.id,
@@ -44,11 +52,13 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
   }
   await models.ResourceContent.bulkCreate(resourceContentsData, { updateOnDuplicate: ['content_id'] });
   await models.ResourceKeyword.bulkCreate(resourceKeywordsData, { updateOnDuplicate: ['resource_id'] });
+  await models.ContentTag.bulkCreate(contentTagsData, { updateOnDuplicate: ['content_id'] });
   // ずれたauto_incrementの値を元に戻す
   await Promise.all([
     models.sequelize.query(`ALTER TABLE \`${models.Content.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.Resource.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.ResourceContent.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.ResourceKeyword.tableName}\` auto_increment = 1;`),
+    models.sequelize.query(`ALTER TABLE \`${models.ContentTag.tableName}\` auto_increment = 1;`),
   ]);
 }
