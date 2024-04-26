@@ -23,8 +23,8 @@ module.exports = {
         defaultValue: 0,
       },
     });
+    await queryInterface.addIndex('resource_keywords', ['keyword_id', 'resource_id'], { unique: true });
     await queryInterface.addIndex('resource_keywords', ['resource_id']);
-    await queryInterface.addIndex('resource_keywords', ['keyword_id']);
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('resource_keywords');

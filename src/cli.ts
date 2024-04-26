@@ -4,15 +4,15 @@ import packageJson from '../package.json';
 import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/frickr/api/search';
 //import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
 import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
-import models from './sequelize/models';
+import { importScrapedData, ScrapedDataModels } from './libs/utils/data-importers';
+
 import { config } from 'dotenv';
 config();
-import { v4 as uuidv4 } from 'uuid';
 import { ServiceTypes } from './sequelize/enums/service-types';
 import { WordTypes } from './sequelize/enums/word-types';
 import { ResourceTypes } from './sequelize/enums/resource-types';
-type ServiceTypeNames = typeof ServiceTypes;
-type WordTypeNames = typeof WordTypes;
+import models from './sequelize/models';
+
 /**
  * Set global CLI configurations
  */
@@ -23,101 +23,40 @@ program.version(packageJson.version, '-v, --version');
 const crawlCommand = new Command('crawl');
 crawlCommand.description('crawl');
 
-interface ExecuteResultModels {
-  [resourceUrl: string]: {
-    resource: any;
-    content: any;
-  };
-}
-
-const searchKeywordRoutine = async ({
-  serviceType,
-  wordType,
-  word,
-  execution,
-}: {
-  serviceType: ServiceTypeNames;
-  wordType: WordTypeNames;
-  word: string;
-  execution: (keyword) => Promise<ExecuteResultModels>;
-}) => {
-  const [keyword, isCreated] = await models.Keyword.findOrCreate({
-    where: {
-      service_type: ServiceTypes[serviceType],
-      word_type: WordTypes[wordType],
-      word: word,
-    },
-  });
-  const resourceUrlContentResources = await execution(keyword);
-  const contentResources = Object.values(resourceUrlContentResources);
-  await models.Content.bulkCreate(
-    contentResources.map((contentResource) => contentResource.content),
-    { updateOnDuplicate: ['website_url'] },
-  );
-  await models.Resource.bulkCreate(
-    contentResources.map((contentResource) => contentResource.resource),
-    { updateOnDuplicate: ['url'] },
-  );
-  const resourceContentsData: { content_id: number; resource_id: number }[] = [];
-  const createdContents = await models.Content.findAll({
-    where: { website_url: contentResources.map((contentResource) => contentResource.content.website_url) },
-  });
-  const createdResources = await models.Resource.findAll({
-    where: { url: contentResources.map((contentResource) => contentResource.resource.url) },
-  });
-  for (const createdResource of createdResources) {
-    const contentResource = resourceUrlContentResources[createdResource.url];
-    const contentModel = createdContents.find((createdContent) => contentResource.content.website_url === createdContent.website_url);
-    if (contentModel) {
-      resourceContentsData.push({
-        content_id: contentModel.id,
-        resource_id: createdResource.id,
-      });
-    }
-  }
-  await models.ResourceContent.bulkCreate(resourceContentsData, { updateOnDuplicate: ['content_id'] });
-  // ずれたauto_incrementの値を元に戻す
-  await Promise.all([
-    models.sequelize.query(`ALTER TABLE \`${models.Content.tableName}\` auto_increment = 1;`),
-    models.sequelize.query(`ALTER TABLE \`${models.Resource.tableName}\` auto_increment = 1;`),
-    models.sequelize.query(`ALTER TABLE \`${models.ResourceContent.tableName}\` auto_increment = 1;`),
-  ]);
-};
-
 crawlCommand
   .command('flickr')
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
   .action(async (options: any) => {
-    searchKeywordRoutine({
-      serviceType: 'flickr',
-      wordType: 'searchword',
-      word: options.keyword,
-      execution: async (keyword) => {
-        const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
-        const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-        const results: ExecuteResultModels = {};
-        for (const flickrImageResource of flickrImageResources) {
-          results[flickrImageResource.image_url] = {
-            content: {
-              service_type: keyword.service_type,
-              title: flickrImageResource.title,
-              website_url: flickrImageResource.website_url,
-              service_content_id: flickrImageResource.id,
-              service_user_id: flickrImageResource.user_id,
-              service_user_name: flickrImageResource.user_name,
-              latitude: flickrImageResource.latitude,
-              longitude: flickrImageResource.longitude,
-            },
-            resource: {
-              resource_type: ResourceTypes.image,
-              url: flickrImageResource.image_url,
-            },
-          };
-        }
-        return results;
+    const [keyword, isCreated] = await models.Keyword.findOrCreate({
+      where: {
+        service_type: ServiceTypes.flickr,
+        word_type: WordTypes.searchword,
+        word: options.keyword,
       },
     });
+    const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
+    const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
+    const results: ScrapedDataModels = {};
+    for (const flickrImageResource of flickrImageResources) {
+      results[flickrImageResource.image_url] = {
+        content: {
+          service_type: keyword.service_type,
+          title: flickrImageResource.title,
+          website_url: flickrImageResource.website_url,
+          service_content_id: flickrImageResource.id,
+          service_user_id: flickrImageResource.user_id,
+          service_user_name: flickrImageResource.user_name,
+          latitude: flickrImageResource.latitude,
+          longitude: flickrImageResource.longitude,
+        },
+        resource: {
+          resource_type: ResourceTypes.image,
+          url: flickrImageResource.image_url,
+        },
+      };
+    }
+    await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
   });
 
 crawlCommand
