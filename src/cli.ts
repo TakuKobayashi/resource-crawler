@@ -5,6 +5,7 @@ import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/fric
 //import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
 import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
 import { importScrapedData, ScrapedDataModels } from './libs/utils/data-importers';
+import { exportToInsertSQL } from './libs/utils/data-exporters';
 
 import { config } from 'dotenv';
 config();
@@ -69,6 +70,17 @@ crawlCommand
   });
 
 program.addCommand(crawlCommand);
+
+const exportCommand = new Command('export');
+
+exportCommand
+  .command('sql')
+  .description('')
+  .action(async (options: any) => {
+    await exportToInsertSQL();
+  });
+
+program.addCommand(exportCommand);
 
 program
   .command('pupperteer')
