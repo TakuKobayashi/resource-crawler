@@ -1,4 +1,5 @@
 import models from '../../sequelize/models';
+import { WordTypes } from '../../sequelize/enums/word-types';
 import _ from 'lodash';
 
 export interface ScrapedDataModels {
@@ -30,6 +31,7 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
   const resourceContentsData: { content_id: number; resource_id: number }[] = [];
   const contentTagsData: { content_id: number; tag: string }[] = [];
   const resourceKeywordsData: { keyword_id: number; resource_id: number }[] = [];
+  const newKeywordsData: { service_type: number; word_type: number; word: string }[] = [];
   for (const createdResource of createdResources) {
     const contentResource = scrapedDataModels[createdResource.url];
     const contentModel = createdContents.find((createdContent) => contentResource.content.website_url === createdContent.website_url);
@@ -43,6 +45,11 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
           content_id: contentModel.id,
           tag: tag,
         });
+        newKeywordsData.push({
+          service_type: keywordModel.service_type,
+          word_type: WordTypes.searchword,
+          word: tag,
+        });
       }
     }
     resourceKeywordsData.push({
@@ -50,9 +57,15 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
       keyword_id: keywordModel.id,
     });
   }
-  await models.ResourceContent.bulkCreate(resourceContentsData, { updateOnDuplicate: ['content_id'] });
-  await models.ResourceKeyword.bulkCreate(resourceKeywordsData, { updateOnDuplicate: ['resource_id'] });
-  await models.ContentTag.bulkCreate(contentTagsData, { updateOnDuplicate: ['content_id'] });
+  await Promise.all([
+    models.ResourceContent.bulkCreate(resourceContentsData, { updateOnDuplicate: ['content_id'] }),
+    models.ResourceKeyword.bulkCreate(resourceKeywordsData, { updateOnDuplicate: ['resource_id'] }),
+    models.ContentTag.bulkCreate(contentTagsData, { updateOnDuplicate: ['content_id'] }),
+    models.Keyword.bulkCreate(
+      _.uniqBy(newKeywordsData, (keyword) => keyword.word),
+      { updateOnDuplicate: ['word'] },
+    ),
+  ]);
   // ずれたauto_incrementの値を元に戻す
   await Promise.all([
     models.sequelize.query(`ALTER TABLE \`${models.Content.tableName}\` auto_increment = 1;`),
@@ -60,5 +73,6 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
     models.sequelize.query(`ALTER TABLE \`${models.ResourceContent.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.ResourceKeyword.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.ContentTag.tableName}\` auto_increment = 1;`),
+    models.sequelize.query(`ALTER TABLE \`${models.Keyword.tableName}\` auto_increment = 1;`),
   ]);
 }

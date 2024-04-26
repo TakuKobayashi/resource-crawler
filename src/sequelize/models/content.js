@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         as: 'resources',
       });
       this.hasMany(models.ResourceContent, { foreignKey: 'content_id', as: 'resource_contents' });
-      this.hasOne(models.ContentDetail, { foreignKey: 'content_id', as: 'detail' });
+      this.hasMany(models.ContentTag, { foreignKey: 'content_id', as: 'tags' });
     }
   }
   Content.init(
