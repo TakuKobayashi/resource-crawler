@@ -7,7 +7,8 @@
     "docs": "typedoc --tsconfig tsconfig.json --entryPoints src/**/*.ts --out docs/",
     "ts-node": "ts-node",
     "crawler": "ts-node src/cli.ts",
-    "sequelize": "sequelize"
+    "sequelize": "sequelize",
+    "sequelize:db:create": "sequelize db:create --charset utf8mb4 --collate utf8mb4_unicode_ci"
   },
   "author": "TakuKobayashi",
   "private": true,
