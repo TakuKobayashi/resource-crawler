@@ -3,6 +3,7 @@ version: '3'
 services:
   mysql:
     image: mysql:5.7
+    container_name: mysql
     command: mysqld --character-set-server=${MYSQL_CHARSET} --collation-server=${MYSQL_COLLATE}
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -16,22 +17,26 @@ services:
       - appandserver
 
   nodejs:
-    image: node:18.20.2-slim
+    container_name: resource_crawler_nodejs
     environment:
       MYSQL_HOST: mysql
       MYSQL_USER: ${MYSQL_USERNAME}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       TZ: ${TZ}
+    tty: true
     ports:
       - '3123:3123'
+    build:
+      context: .
+      dockerfile: ./docker/nodejs/dockerfile
     # ソースコードを格納するフォルダをマウント
     #（ホスト側の./apiをコンテナの/appにマウント）
     volumes:
       - ./:/app
     # 起動時のカレントフォルダを指定
     working_dir: /app
-    tty: true
+    # 起動後に実行するコマンドを指定
     networks:
       - appandserver
     #依存関係（apiコンテナより先にdbコンテナが起動するように設定）
