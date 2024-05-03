@@ -7,10 +7,39 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      TZ: ${TZ}
     ports:
       - ${MYSQL_PORT}:3306
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - appandserver
+
+  nodejs:
+    image: node:18.20.2-slim
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      TZ: ${TZ}
+    ports:
+      - '3123:3123'
+    # ソースコードを格納するフォルダをマウント
+    #（ホスト側の./apiをコンテナの/appにマウント）
+    volumes:
+      - ./:/app
+    # 起動時のカレントフォルダを指定
+    working_dir: /app
+    tty: true
+    networks:
+      - appandserver
+    #依存関係（apiコンテナより先にdbコンテナが起動するように設定）
+    depends_on:
+      - mysql
+
+networks:
+  appandserver:
 
 volumes:
   mysql-data:
