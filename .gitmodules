@@ -1,0 +1,3 @@
+[submodule "sqls"]
+	path = sqls
+	url = git@github.com:TakuKobayashi/resource-crawler-sqls.git
