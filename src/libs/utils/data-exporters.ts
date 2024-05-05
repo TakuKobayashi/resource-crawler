@@ -21,7 +21,7 @@ export async function exportToInsertSQL() {
   const appDir = path.dirname(require.main?.filename || '');
   for (const tableName of tableNames) {
     // cli.ts がある場所なのでSQLを保管する場所を指定する
-    const exportFullDumpSql = path.join(appDir, `..`, 'sqls', `${tableName}.sql`);
+    const exportFullDumpSql = path.join(appDir, `..`, 'sqls', `tables`, `${tableName}.sql`);
     const mysqldumpCommands = [
       ...mysqldumpCommandParts,
       databaseConfig.database,
