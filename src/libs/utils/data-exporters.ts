@@ -3,6 +3,7 @@ import databaseConfig from '../../sequelize/config/config';
 import path from 'path';
 import _ from 'lodash';
 import fs from 'fs';
+import readline from 'readline';
 
 const util = require('node:util');
 const child_process = require('node:child_process');
@@ -42,7 +43,47 @@ export async function exportToInsertSQL() {
     ];
     const childProcessExec = util.promisify(child_process.exec);
     await childProcessExec(mysqldumpCommands.join(' '));
+    await splitFileFromLines(exportFullDumpSql, tableName, 10000);
   }
+}
+
+async function splitFileFromLines(filepath: string, tableName: string, numberToDividedLines: number) {
+  const documentSrc = fs.createReadStream(filepath);
+  const fileLines = await execFileLineCount(filepath);
+  let dividedFiles: number = 0;
+  if (fileLines % numberToDividedLines === 0) {
+    dividedFiles = fileLines / numberToDividedLines;
+  } else {
+    dividedFiles = fileLines / numberToDividedLines + 1;
+  }
+  const appDir = path.dirname(require.main?.filename || '');
+  if (!fs.existsSync(path.join(appDir, `..`, 'sqls', `tables`, tableName))) {
+    fs.mkdirSync(path.join(appDir, `..`, 'sqls', `tables`, tableName), { recursive: true });
+  }
+  for (let i = 1; i <= dividedFiles; i += 1) {
+    const dividedFile = fs.createWriteStream(path.join(appDir, `..`, 'sqls', `tables`, tableName, `${tableName}_${i}.sql`));
+    const startLine = (i - 1) * numberToDividedLines + 1;
+    let readCounter = 1;
+    const reader = readline.createInterface({ input: documentSrc });
+    // 書き出しポイントから分割する行数×周回までファイルに出力
+    reader.on('line', (data) => {
+      if (startLine <= readCounter && readCounter < i * numberToDividedLines) {
+        dividedFile.write(`${data.trim()}\n`);
+      } else if (startLine <= readCounter && readCounter === i * numberToDividedLines) {
+        dividedFile.write(`${data.trim()}`);
+      }
+      readCounter += 1;
+    });
+    dividedFile.on('error', (err) => {
+      if (err) console.log(err.message);
+    });
+  }
+}
+
+async function execFileLineCount(targetFile: string) {
+  const childProcessExec = util.promisify(child_process.exec);
+  const { stdout } = await childProcessExec.exec(`cat ${targetFile} | wc -l`);
+  return parseInt(stdout, 10);
 }
 
 export async function loadExistTableNames(): Promise<string[]> {
