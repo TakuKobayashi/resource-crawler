@@ -2,6 +2,7 @@ import models from '../../sequelize/models';
 import databaseConfig from '../../sequelize/config/config';
 import path from 'path';
 import _ from 'lodash';
+
 const util = require('node:util');
 const child_process = require('node:child_process');
 
@@ -17,8 +18,10 @@ export async function exportToInsertSQL() {
   if (databaseConfig.password) {
     mysqldumpCommandParts.push(`-p${databaseConfig.password}`);
   }
+  const appDir = path.dirname(require.main?.filename || '');
   for (const tableName of tableNames) {
-    const exportFullDumpSql = path.join(__dirname, `${tableName}.sql`);
+    // cli.ts がある場所なのでSQLを保管する場所を指定する
+    const exportFullDumpSql = path.join(appDir, `..`, `${tableName}.sql`);
     const mysqldumpCommands = [
       ...mysqldumpCommandParts,
       databaseConfig.database,
