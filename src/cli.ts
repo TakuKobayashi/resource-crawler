@@ -36,29 +36,36 @@ crawlCommand
         word: options.keyword,
       },
     });
-    const flickrPhotos = await searchFlickrPhotos({ text: keyword.word });
-    const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-    const results: ScrapedDataModels = {};
-    for (const flickrImageResource of flickrImageResources) {
-      results[flickrImageResource.image_url] = {
-        content: {
-          service_type: keyword.service_type,
-          title: flickrImageResource.title,
-          website_url: flickrImageResource.website_url,
-          service_content_id: flickrImageResource.id,
-          service_user_id: flickrImageResource.user_id,
-          service_user_name: flickrImageResource.user_name,
-          latitude: flickrImageResource.latitude,
-          longitude: flickrImageResource.longitude,
-        },
-        resource: {
-          resource_type: ResourceTypes.image,
-          url: flickrImageResource.image_url,
-        },
-        contentTags: flickrImageResource.tags.split(' '),
-      };
-    }
-    await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
+    let page = 1;
+    let totalPageCount = 0;
+    do {
+      const flickrPhotos = await searchFlickrPhotos({ text: keyword.word, page: page });
+      page = flickrPhotos.page;
+      totalPageCount = flickrPhotos.pages;
+      const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
+      const results: ScrapedDataModels = {};
+      for (const flickrImageResource of flickrImageResources) {
+        results[flickrImageResource.image_url] = {
+          content: {
+            service_type: keyword.service_type,
+            title: flickrImageResource.title,
+            website_url: flickrImageResource.website_url,
+            service_content_id: flickrImageResource.id,
+            service_user_id: flickrImageResource.user_id,
+            service_user_name: flickrImageResource.user_name,
+            latitude: flickrImageResource.latitude,
+            longitude: flickrImageResource.longitude,
+          },
+          resource: {
+            resource_type: ResourceTypes.image,
+            url: flickrImageResource.image_url,
+          },
+          contentTags: flickrImageResource.tags.split(' '),
+        };
+      }
+      await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
+      page += 1;
+    } while (page <= totalPageCount);
   });
 
 crawlCommand
