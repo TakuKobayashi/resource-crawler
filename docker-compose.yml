@@ -29,9 +29,9 @@ services:
       - '3123:3123'
     build:
       context: .
-      dockerfile: ./docker/nodejs/dockerfile
+      dockerfile: ./docker/nodejs/Dockerfile
     # ソースコードを格納するフォルダをマウント
-    #（ホスト側の./apiをコンテナの/appにマウント）
+    #（ホスト側の./をコンテナの/appにマウント）
     volumes:
       - ./:/app
     # 起動時のカレントフォルダを指定
