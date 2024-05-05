@@ -2,6 +2,7 @@ import models from '../../sequelize/models';
 import databaseConfig from '../../sequelize/config/config';
 import path from 'path';
 import _ from 'lodash';
+import fs from 'fs';
 
 const util = require('node:util');
 const child_process = require('node:child_process');
@@ -21,6 +22,9 @@ export async function exportToInsertSQL() {
   const appDir = path.dirname(require.main?.filename || '');
   for (const tableName of tableNames) {
     // cli.ts がある場所なのでSQLを保管する場所を指定する
+    if (!fs.existsSync(path.join(appDir, `..`, 'sqls', `tables`))) {
+      fs.mkdirSync(path.join(appDir, `..`, 'sqls', `tables`), { recursive: true });
+    }
     const exportFullDumpSql = path.join(appDir, `..`, 'sqls', `tables`, `${tableName}.sql`);
     const mysqldumpCommands = [
       ...mysqldumpCommandParts,
