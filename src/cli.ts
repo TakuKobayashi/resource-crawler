@@ -21,10 +21,10 @@ program.storeOptionsAsProperties(false);
 
 program.version(packageJson.version, '-v, --version');
 
-const crawlCommand = new Command('crawl');
-crawlCommand.description('crawl');
+const scrapeCommand = new Command('scrape');
+scrapeCommand.description('scrape services');
 
-crawlCommand
+scrapeCommand
   .command('flickr')
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
@@ -68,7 +68,7 @@ crawlCommand
     } while (page <= totalPageCount);
   });
 
-crawlCommand
+scrapeCommand
   .command('instagram')
   .description('')
   .option('-u, --username <username>', `検索するユーザー名`)
@@ -76,7 +76,7 @@ crawlCommand
     await searchInstagramImagesFromUserName({ userName: options.username });
   });
 
-program.addCommand(crawlCommand);
+program.addCommand(scrapeCommand);
 
 const exportCommand = new Command('export');
 
