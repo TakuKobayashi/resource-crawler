@@ -41,6 +41,9 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
         resource_id: createdResource.id,
       });
       for (const tag of contentResource.contentTags) {
+        if (!tag) {
+          continue;
+        }
         contentTagsData.push({
           content_id: contentModel.id,
           tag: tag,
