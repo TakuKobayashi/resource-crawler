@@ -12,7 +12,22 @@ interface ShowTablesResult {
   Tables_in_resource_crawler: string;
 }
 
+// 分割するファイルの数がこの数字を超えたら新しくディレクトリを作るようにする
+const dividDirectoryFileCount = 100;
+// ファイルを分割する行数(出来上がるSQLファイルのサイズが100MBを超えない範囲で調整)
+const dividedLinesCount = 200000;
+
 const excludeExportTableNames = ['SequelizeMeta'];
+
+export function loadSavedSqlRootDirPath(): string {
+  const appDir = path.dirname(require.main?.filename || '');
+  const saveSqlDirPath = path.join(appDir, `..`, 'sqls', `tables`);
+  // cli.ts がある場所なのでSQLを保管する場所を指定する
+  if (!fs.existsSync(saveSqlDirPath)) {
+    fs.mkdirSync(saveSqlDirPath, { recursive: true });
+  }
+  return saveSqlDirPath;
+}
 
 export async function exportToInsertSQL() {
   const tableNames = await loadExistTableNames();
@@ -20,12 +35,7 @@ export async function exportToInsertSQL() {
   if (databaseConfig.password) {
     mysqldumpCommandParts.push(`-p${databaseConfig.password}`);
   }
-  const appDir = path.dirname(require.main?.filename || '');
-  const saveSqlDirPath = path.join(appDir, `..`, 'sqls', `tables`);
-  // cli.ts がある場所なのでSQLを保管する場所を指定する
-  if (!fs.existsSync(saveSqlDirPath)) {
-    fs.mkdirSync(saveSqlDirPath, { recursive: true });
-  }
+  const saveSqlDirPath = loadSavedSqlRootDirPath();
   const mysqlDumpAndSpritFilesRoutinePromises: Promise<void>[] = [];
   for (const tableName of tableNames) {
     const exportFullDumpSql = path.join(saveSqlDirPath, `${tableName}.sql`);
@@ -51,7 +61,7 @@ export async function exportToInsertSQL() {
 async function mysqlDumpAndSpritFilesRoutine(exportFullDumpSql: string, tableName: string, mysqldumpCommand: string): Promise<void> {
   const childProcessExec = util.promisify(child_process.exec);
   await childProcessExec(mysqldumpCommand);
-  await splitFileFromLines(exportFullDumpSql, tableName, 200000);
+  await splitFileFromLines(exportFullDumpSql, tableName, dividedLinesCount);
   if (fs.existsSync(exportFullDumpSql)) {
     await fsPromise.unlink(exportFullDumpSql);
   }
@@ -66,13 +76,17 @@ async function splitFileFromLines(filepath: string, tableName: string, numberToD
   } else {
     dividedFiles = fileLines / numberToDividedLines + 1;
   }
-  const appDir = path.dirname(require.main?.filename || '');
-  const saveTablesDirPath = path.join(appDir, `..`, 'sqls', `tables`, tableName);
+  const saveTablesDirPath = path.join(loadSavedSqlRootDirPath(), tableName);
   if (!fs.existsSync(saveTablesDirPath)) {
     fs.mkdirSync(saveTablesDirPath, { recursive: true });
   }
   for (let i = 1; i <= dividedFiles; i += 1) {
-    const dividedFile = fs.createWriteStream(path.join(saveTablesDirPath, `${tableName}_${i}.sql`));
+    const saveDirPathNumber = Math.ceil(i / dividDirectoryFileCount);
+    const saveDirPath = path.join(saveTablesDirPath, saveDirPathNumber.toString());
+    if (!fs.existsSync(saveDirPath)) {
+      fs.mkdirSync(saveDirPath, { recursive: true });
+    }
+    const dividedFile = fs.createWriteStream(path.join(saveDirPath, `${tableName}_${i}.sql`));
     const startLine = (i - 1) * numberToDividedLines + 1;
     let readCounter = 1;
     const reader = readline.createInterface({ input: documentSrc });
