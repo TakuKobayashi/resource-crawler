@@ -7,7 +7,7 @@ import readline from 'readline';
 
 const util = require('node:util');
 const child_process = require('node:child_process');
-
+const fsPromise = fs.promises;
 interface ShowTablesResult {
   Tables_in_resource_crawler: string;
 }
@@ -21,12 +21,14 @@ export async function exportToInsertSQL() {
     mysqldumpCommandParts.push(`-p${databaseConfig.password}`);
   }
   const appDir = path.dirname(require.main?.filename || '');
+  const saveSqlDirPath = path.join(appDir, `..`, 'sqls', `tables`);
+  // cli.ts がある場所なのでSQLを保管する場所を指定する
+  if (!fs.existsSync(saveSqlDirPath)) {
+    fs.mkdirSync(saveSqlDirPath, { recursive: true });
+  }
+  const mysqlDumpAndSpritFilesRoutinePromises: Promise<void>[] = [];
   for (const tableName of tableNames) {
-    // cli.ts がある場所なのでSQLを保管する場所を指定する
-    if (!fs.existsSync(path.join(appDir, `..`, 'sqls', `tables`))) {
-      fs.mkdirSync(path.join(appDir, `..`, 'sqls', `tables`), { recursive: true });
-    }
-    const exportFullDumpSql = path.join(appDir, `..`, 'sqls', `tables`, `${tableName}.sql`);
+    const exportFullDumpSql = path.join(saveSqlDirPath, `${tableName}.sql`);
     const mysqldumpCommands = [
       ...mysqldumpCommandParts,
       databaseConfig.database,
@@ -41,9 +43,17 @@ export async function exportToInsertSQL() {
       '>',
       exportFullDumpSql,
     ];
-    const childProcessExec = util.promisify(child_process.exec);
-    await childProcessExec(mysqldumpCommands.join(' '));
-    await splitFileFromLines(exportFullDumpSql, tableName, 10000);
+    mysqlDumpAndSpritFilesRoutinePromises.push(mysqlDumpAndSpritFilesRoutine(exportFullDumpSql, tableName, mysqldumpCommands.join(' ')));
+  }
+  await Promise.all(mysqlDumpAndSpritFilesRoutinePromises);
+}
+
+async function mysqlDumpAndSpritFilesRoutine(exportFullDumpSql: string, tableName: string, mysqldumpCommand: string): Promise<void> {
+  const childProcessExec = util.promisify(child_process.exec);
+  await childProcessExec(mysqldumpCommand);
+  await splitFileFromLines(exportFullDumpSql, tableName, 10000);
+  if (fs.existsSync(exportFullDumpSql)) {
+    await fsPromise.unlink(exportFullDumpSql);
   }
 }
 
@@ -57,11 +67,12 @@ async function splitFileFromLines(filepath: string, tableName: string, numberToD
     dividedFiles = fileLines / numberToDividedLines + 1;
   }
   const appDir = path.dirname(require.main?.filename || '');
-  if (!fs.existsSync(path.join(appDir, `..`, 'sqls', `tables`, tableName))) {
-    fs.mkdirSync(path.join(appDir, `..`, 'sqls', `tables`, tableName), { recursive: true });
+  const saveTablesDirPath = path.join(appDir, `..`, 'sqls', `tables`, tableName);
+  if (!fs.existsSync(saveTablesDirPath)) {
+    fs.mkdirSync(saveTablesDirPath, { recursive: true });
   }
   for (let i = 1; i <= dividedFiles; i += 1) {
-    const dividedFile = fs.createWriteStream(path.join(appDir, `..`, 'sqls', `tables`, tableName, `${tableName}_${i}.sql`));
+    const dividedFile = fs.createWriteStream(path.join(saveTablesDirPath, `${tableName}_${i}.sql`));
     const startLine = (i - 1) * numberToDividedLines + 1;
     let readCounter = 1;
     const reader = readline.createInterface({ input: documentSrc });
@@ -82,7 +93,7 @@ async function splitFileFromLines(filepath: string, tableName: string, numberToD
 
 async function execFileLineCount(targetFile: string) {
   const childProcessExec = util.promisify(child_process.exec);
-  const { stdout } = await childProcessExec.exec(`cat ${targetFile} | wc -l`);
+  const { stdout } = await childProcessExec(`cat ${targetFile} | wc -l`);
   return parseInt(stdout, 10);
 }
 
