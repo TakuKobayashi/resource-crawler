@@ -51,7 +51,7 @@ export async function exportToInsertSQL() {
 async function mysqlDumpAndSpritFilesRoutine(exportFullDumpSql: string, tableName: string, mysqldumpCommand: string): Promise<void> {
   const childProcessExec = util.promisify(child_process.exec);
   await childProcessExec(mysqldumpCommand);
-  await splitFileFromLines(exportFullDumpSql, tableName, 10000);
+  await splitFileFromLines(exportFullDumpSql, tableName, 200000);
   if (fs.existsSync(exportFullDumpSql)) {
     await fsPromise.unlink(exportFullDumpSql);
   }
