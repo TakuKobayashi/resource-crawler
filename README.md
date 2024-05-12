@@ -1,4 +1,66 @@
-# ResourceCrawlerApi
+# ResourceCrawler
+
+## 実行環境構築
+
+### 実行環境の起動
+
+```
+docker-compose up -d
+```
+
+### 初回データベースの作成
+
+データベースの作成
+
+```
+docker exec resource_crawler_nodejs yarn run sequelize db:create
+```
+
+マイグレーションの実行
+
+```
+docker exec resource_crawler_nodejs yarn run sequelize db:migrate
+```
+
+### 保存してあるSQLファイルからデータを挿入する
+
+[SQLを保管しているリポジトリ](https://github.com/TakuKobayashi/resource-crawler-sqls)からSQLをダウンロードしてくる
+
+```
+git submodule add git@github.com:TakuKobayashi/resource-crawler-sqls.git
+```
+
+ダウンロードしてきたSQLからデータベースにデータをいれる
+
+```
+docker exec resource_crawler_nodejs yarn run sequelize db:seed:all
+```
+
+データベースの中身をきれいにする
+
+```
+docker exec resource_crawler_nodejs yarn run sequelize db:seed:undo:all
+```
+
+### データベースに保存されているデータをSQLファイルに書き出す
+
+
+```
+docker exec resource_crawler_nodejs yarn run crawler export sql
+```
+
+### データを収集する
+
+※ 収集先は随時追加予定
+
+* Flickrの場合
+
+キーワードを指定して探す場合
+
+```
+docker exec resource_crawler_nodejs yarn run crawler scrape flickr -k キーワード
+```
+
 
 ## 試してみたことのメモ
 
