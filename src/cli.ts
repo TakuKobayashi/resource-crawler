@@ -27,14 +27,57 @@ scrapeCommand
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
   .action(async (options: any) => {
-    const [keyword, isCreated] = await models.Keyword.findOrCreate({
-      where: {
+    const keywords: any[] = [];
+    if (options.keyword) {
+      const [keyword, isCreated] = await models.Keyword.findOrCreate({
+        where: {
+          service_type: ServiceTypes.flickr,
+          word_type: WordTypes.searchword,
+          word: options.keyword,
+        },
+      });
+      keywords.push(keyword);
+    } else {
+      const searchKeywordQueryObj: { [key: string]: any } = {
         service_type: ServiceTypes.flickr,
         word_type: WordTypes.searchword,
-        word: options.keyword,
-      },
-    });
-    await allSearchAndImportFlickrPhotoData(keyword);
+      };
+      const scraperModel = await models.Scraper.findOne({
+        where: {
+          service_type: ServiceTypes.flickr,
+          word_type: WordTypes.searchword,
+        },
+      });
+      if (scraperModel) {
+        searchKeywordQueryObj.id = {
+          [models.Op.gt]: scraperModel.last_keyword_id,
+        };
+      }
+
+      const keywordModels = await models.Keyword.findAll({
+        where: searchKeywordQueryObj,
+        order: [['id', 'ASK']],
+        limit: 100,
+      });
+      for (const keyword of keywordModels) {
+        keywords.push(keyword);
+      }
+    }
+    await allSearchAndImportFlickrPhotoData(keywords);
+    if (!options.keyword) {
+      const scrapedKeyword = keywords[keywords.length - 1];
+      if (scrapedKeyword) {
+        const [scrapeModel, isCreated] = await models.Scraper.findOrCreate({
+          where: {
+            service_type: scrapedKeyword.service_type,
+            word_type: WordTypes.searchword,
+          },
+        });
+        scrapeModel.last_keyword_id = scrapedKeyword.id;
+        scrapeModel.executed_at = new Date();
+        await scrapeModel.save();
+      }
+    }
   });
 
 scrapeCommand
