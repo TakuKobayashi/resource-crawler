@@ -29,7 +29,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
     });
-    await queryInterface.addIndex('geolocations', ['source_type', 'source_id']);
+    await queryInterface.addIndex('geolocations', ['source_type', 'source_id'], { unique: true });
     await queryInterface.addIndex('geolocations', ['geohash']);
   },
   async down(queryInterface, Sequelize) {

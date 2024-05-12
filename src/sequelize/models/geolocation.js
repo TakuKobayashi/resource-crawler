@@ -17,12 +17,12 @@ module.exports = (sequelize, DataTypes) => {
       source_type: DataTypes.STRING,
       latitude: DataTypes.FLOAT,
       longitude: DataTypes.FLOAT,
-      geohash: Sequelize.STRING,
+      geohash: DataTypes.STRING,
     },
     {
       sequelize,
       modelName: 'Geolocation',
-      tableName: 'geolocation',
+      tableName: 'geolocations',
       timestamps: false,
     },
   );
