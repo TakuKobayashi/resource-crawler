@@ -1,6 +1,6 @@
-import { FlickrImageResource } from '@/libs/interfaces/resource-result';
-import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from '@/libs/utils/data-importers';
-import { ResourceTypes } from '@/sequelize/enums/resource-types';
+import { FlickrImageResource } from '../../../interfaces/resource-result';
+import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from '../../../utils/data-importers';
+import { ResourceTypes } from '../../../../sequelize/enums/resource-types';
 const Flickr = require('flickr-sdk');
 
 const FLICKR_PHOTO_ROOT_URL = 'https://www.flickr.com/photos/';
