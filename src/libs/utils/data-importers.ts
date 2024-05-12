@@ -1,13 +1,17 @@
+import { encodeBase32 } from 'geohashing';
 import models from '../../sequelize/models';
 import { WordTypes } from '../../sequelize/enums/word-types';
 import _ from 'lodash';
 
 export interface ScrapedDataModels {
-  [resourceUrl: string]: {
-    resource: any;
-    content: any;
-    contentTags: string[];
-  };
+  [resourceUrl: string]: ScrapedDataModelPart;
+}
+
+export interface ScrapedDataModelPart {
+  resource: any;
+  content: any;
+  contentTags: string[];
+  geolocation: any;
 }
 
 export async function importScrapedData({ keywordModel, scrapedDataModels }: { keywordModel: any; scrapedDataModels: ScrapedDataModels }) {
@@ -30,10 +34,17 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
   });
   const resourceContentsData: { content_id: number; resource_id: number }[] = [];
   const contentTagsData: { content_id: number; tag: string }[] = [];
+  const geolocationsData: { source_type: string; source_id: number; latitude: number; longitude: number; geohash: string }[] = [];
   const resourceKeywordsData: { keyword_id: number; resource_id: number }[] = [];
   const newKeywordsData: { service_type: number; word_type: number; word: string }[] = [];
   for (const createdResource of createdResources) {
     const contentResource = scrapedDataModels[createdResource.url];
+    const geolocationModel: any = {};
+    if (contentResource.geolocation) {
+      geolocationModel.latitude = contentResource.geolocation.latitude;
+      geolocationModel.longitude = contentResource.geolocation.longitude;
+      geolocationModel.geohash = encodeBase32(contentResource.geolocation.latitude, contentResource.geolocation.longitude);
+    }
     const contentModel = createdContents.find((createdContent) => contentResource.content.website_url === createdContent.website_url);
     if (contentModel) {
       resourceContentsData.push({
@@ -54,6 +65,21 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
           word: tag,
         });
       }
+      if (contentResource.geolocation) {
+        geolocationsData.push({
+          ...geolocationModel,
+          source_type: 'content',
+          source_id: contentModel.id,
+        });
+      }
+    } else {
+      if (contentResource.geolocation) {
+        geolocationsData.push({
+          ...geolocationModel,
+          source_type: 'resource',
+          source_id: createdResource.id,
+        });
+      }
     }
     resourceKeywordsData.push({
       resource_id: createdResource.id,
@@ -68,6 +94,7 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
       _.uniqBy(newKeywordsData, (keyword) => keyword.word),
       { updateOnDuplicate: ['word'] },
     ),
+    models.Geolocation.bulkCreate(geolocationsData, { updateOnDuplicate: ['source_type', 'source_id'] }),
   ]);
   // ずれたauto_incrementの値を元に戻す
   await Promise.all([
@@ -77,5 +104,6 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
     models.sequelize.query(`ALTER TABLE \`${models.ResourceKeyword.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.ContentTag.tableName}\` auto_increment = 1;`),
     models.sequelize.query(`ALTER TABLE \`${models.Keyword.tableName}\` auto_increment = 1;`),
+    models.sequelize.query(`ALTER TABLE \`${models.Geolocation.tableName}\` auto_increment = 1;`),
   ]);
 }

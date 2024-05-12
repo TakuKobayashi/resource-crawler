@@ -1980,6 +1980,11 @@ gensync@^1.0.0-beta.2:
   resolved "https://registry.yarnpkg.com/gensync/-/gensync-1.0.0-beta.2.tgz#32a6ee76c3d7f52d46b2b1ae5d93fea8580a25e0"
   integrity sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==
 
+geohashing@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/geohashing/-/geohashing-1.1.4.tgz#fb85e973f2582a026216b4c089c608967ae3f8a7"
+  integrity sha512-i5pmtQBLusXQgGxOEpJg/yd0RiaHBXFtA2lOxq9L/6Eu1/K0w0q5NrL5aA86xkrJzcwjqHUzijb16UOL7Yh1kg==
+
 get-caller-file@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"

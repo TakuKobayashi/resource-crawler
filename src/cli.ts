@@ -4,7 +4,7 @@ import packageJson from '../package.json';
 import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/frickr/api/search';
 //import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
 import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
-import { importScrapedData, ScrapedDataModels } from './libs/utils/data-importers';
+import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from './libs/utils/data-importers';
 import { exportToInsertSQL } from './libs/utils/data-exporters';
 
 import { config } from 'dotenv';
@@ -45,7 +45,7 @@ scrapeCommand
       const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
       const results: ScrapedDataModels = {};
       for (const flickrImageResource of flickrImageResources) {
-        results[flickrImageResource.image_url] = {
+        const scrapedData: ScrapedDataModelPart = {
           content: {
             service_type: keyword.service_type,
             title: flickrImageResource.title,
@@ -53,15 +53,26 @@ scrapeCommand
             service_content_id: flickrImageResource.id,
             service_user_id: flickrImageResource.user_id,
             service_user_name: flickrImageResource.user_name,
-            latitude: flickrImageResource.latitude,
-            longitude: flickrImageResource.longitude,
           },
           resource: {
             resource_type: ResourceTypes.image,
             url: flickrImageResource.image_url,
           },
           contentTags: flickrImageResource.tags.split(' '),
+          geolocation: undefined,
         };
+        if (
+          flickrImageResource.latitude &&
+          flickrImageResource.latitude != 0 &&
+          flickrImageResource.longitude &&
+          flickrImageResource.longitude != 0
+        ) {
+          scrapedData.geolocation = {
+            latitude: flickrImageResource.latitude,
+            longitude: flickrImageResource.longitude,
+          };
+        }
+        results[flickrImageResource.image_url] = scrapedData;
       }
       await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
       page += 1;
