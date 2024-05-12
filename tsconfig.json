@@ -9,7 +9,10 @@
     "declaration": true,
     "esModuleInterop": true,
     "strict": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/sequelize/**/*.js"],
   "exclude": [
@@ -17,5 +20,5 @@
     "node_modules",
     "dist",
     "scripts"
-  ]
+  ],
 }

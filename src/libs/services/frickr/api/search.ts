@@ -1,4 +1,6 @@
-import { FlickrImageResource } from '../../../interfaces/resource-result';
+import { FlickrImageResource } from '@/libs/interfaces/resource-result';
+import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from '@/libs/utils/data-importers';
+import { ResourceTypes } from '@/sequelize/enums/resource-types';
 const Flickr = require('flickr-sdk');
 
 const FLICKR_PHOTO_ROOT_URL = 'https://www.flickr.com/photos/';
@@ -51,4 +53,50 @@ export async function searchFlickrPhotosToFlickerImageResources(searchObj: { [s:
   }
 
   return searchFlickrImageResources;
+}
+
+export async function allSearchAndImportFlickrPhotoData(...keywordModels) {
+  for (const keyword of keywordModels) {
+    let page = 1;
+    let totalPageCount = 0;
+    do {
+      const flickrPhotos = await searchFlickrPhotos({ text: keyword.word, page: page });
+      page = flickrPhotos.page;
+      totalPageCount = flickrPhotos.pages;
+      const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
+      const results: ScrapedDataModels = {};
+      for (const flickrImageResource of flickrImageResources) {
+        const scrapedData: ScrapedDataModelPart = {
+          content: {
+            service_type: keyword.service_type,
+            title: flickrImageResource.title,
+            website_url: flickrImageResource.website_url,
+            service_content_id: flickrImageResource.id,
+            service_user_id: flickrImageResource.user_id,
+            service_user_name: flickrImageResource.user_name,
+          },
+          resource: {
+            resource_type: ResourceTypes.image,
+            url: flickrImageResource.image_url,
+          },
+          contentTags: flickrImageResource.tags.split(' '),
+          geolocation: undefined,
+        };
+        if (
+          flickrImageResource.latitude &&
+          flickrImageResource.latitude != 0 &&
+          flickrImageResource.longitude &&
+          flickrImageResource.longitude != 0
+        ) {
+          scrapedData.geolocation = {
+            latitude: flickrImageResource.latitude,
+            longitude: flickrImageResource.longitude,
+          };
+        }
+        results[flickrImageResource.image_url] = scrapedData;
+      }
+      await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
+      page += 1;
+    } while (page <= totalPageCount);
+  }
 }

@@ -1,17 +1,15 @@
 import { program, Command } from 'commander';
 import puppeteer from 'puppeteer';
 import packageJson from '../package.json';
-import { searchFlickrPhotos, convertToPhotoToObject } from './libs/services/frickr/api/search';
+import { allSearchAndImportFlickrPhotoData } from './libs/services/frickr/api/search';
 //import { searchInstagramImagesFromUserName } from './libs/services/instagram/puppeteer/search';
 import { searchInstagramImagesFromUserName } from './libs/services/instagram/html/search';
-import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from './libs/utils/data-importers';
 import { exportToInsertSQL } from './libs/utils/data-exporters';
 
 import { config } from 'dotenv';
 config();
 import { ServiceTypes } from './sequelize/enums/service-types';
 import { WordTypes } from './sequelize/enums/word-types';
-import { ResourceTypes } from './sequelize/enums/resource-types';
 import models from './sequelize/models';
 
 /**
@@ -36,47 +34,7 @@ scrapeCommand
         word: options.keyword,
       },
     });
-    let page = 1;
-    let totalPageCount = 0;
-    do {
-      const flickrPhotos = await searchFlickrPhotos({ text: keyword.word, page: page });
-      page = flickrPhotos.page;
-      totalPageCount = flickrPhotos.pages;
-      const flickrImageResources = flickrPhotos.photo.map((flickrPhoto) => convertToPhotoToObject(flickrPhoto));
-      const results: ScrapedDataModels = {};
-      for (const flickrImageResource of flickrImageResources) {
-        const scrapedData: ScrapedDataModelPart = {
-          content: {
-            service_type: keyword.service_type,
-            title: flickrImageResource.title,
-            website_url: flickrImageResource.website_url,
-            service_content_id: flickrImageResource.id,
-            service_user_id: flickrImageResource.user_id,
-            service_user_name: flickrImageResource.user_name,
-          },
-          resource: {
-            resource_type: ResourceTypes.image,
-            url: flickrImageResource.image_url,
-          },
-          contentTags: flickrImageResource.tags.split(' '),
-          geolocation: undefined,
-        };
-        if (
-          flickrImageResource.latitude &&
-          flickrImageResource.latitude != 0 &&
-          flickrImageResource.longitude &&
-          flickrImageResource.longitude != 0
-        ) {
-          scrapedData.geolocation = {
-            latitude: flickrImageResource.latitude,
-            longitude: flickrImageResource.longitude,
-          };
-        }
-        results[flickrImageResource.image_url] = scrapedData;
-      }
-      await importScrapedData({ keywordModel: keyword, scrapedDataModels: results });
-      page += 1;
-    } while (page <= totalPageCount);
+    await allSearchAndImportFlickrPhotoData(keyword);
   });
 
 scrapeCommand
