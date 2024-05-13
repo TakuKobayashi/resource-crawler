@@ -55,7 +55,7 @@ export async function searchFlickrPhotosToFlickerImageResources(searchObj: { [s:
   return searchFlickrImageResources;
 }
 
-export async function allSearchAndImportFlickrPhotoData(...keywordModels) {
+export async function allSearchAndImportFlickrPhotoData(keywordModels: any[]) {
   for (const keyword of keywordModels) {
     let page = 1;
     let totalPageCount = 0;
