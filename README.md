@@ -27,7 +27,7 @@ docker exec resource_crawler_nodejs yarn run sequelize db:migrate
 [SQLを保管しているリポジトリ](https://github.com/TakuKobayashi/resource-crawler-sqls)からSQLをダウンロードしてくる
 
 ```
-git submodule add git@github.com:TakuKobayashi/resource-crawler-sqls.git
+git submodule add git@github.com:TakuKobayashi/resource-crawler-sqls.git sqls
 ```
 
 ダウンロードしてきたSQLからデータベースにデータをいれる
