@@ -50,14 +50,14 @@ scrapeCommand
       });
       if (scraperModel) {
         searchKeywordQueryObj.id = {
-          [models.Op.gt]: scraperModel.last_keyword_id,
+          [models.Sequelize.Op.gt]: scraperModel.last_keyword_id,
         };
       }
 
       const keywordModels = await models.Keyword.findAll({
         where: searchKeywordQueryObj,
-        order: [['id', 'ASK']],
-        limit: 100,
+        order: [['id', 'ASC']],
+        limit: 10,
       });
       for (const keyword of keywordModels) {
         keywords.push(keyword);
@@ -72,10 +72,16 @@ scrapeCommand
             service_type: scrapedKeyword.service_type,
             word_type: WordTypes.searchword,
           },
+          defaults: {
+            last_keyword_id: scrapedKeyword.id,
+            executed_at: new Date(),
+          },
         });
-        scrapeModel.last_keyword_id = scrapedKeyword.id;
-        scrapeModel.executed_at = new Date();
-        await scrapeModel.save();
+        if (!isCreated) {
+          scrapeModel.last_keyword_id = scrapedKeyword.id;
+          scrapeModel.executed_at = new Date();
+          await scrapeModel.save();
+        }
       }
     }
   });
