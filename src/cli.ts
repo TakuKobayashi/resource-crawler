@@ -22,68 +22,89 @@ program.version(packageJson.version, '-v, --version');
 const scrapeCommand = new Command('scrape');
 scrapeCommand.description('scrape services');
 
+const scrapeFromKeywordRoutine = async ({
+  serviceType,
+  wordType,
+  word,
+  execution,
+}: {
+  serviceType: number;
+  wordType: number;
+  word?: string | undefined;
+  execution: (keywords) => Promise<void>;
+}) => {
+  const keywords: any[] = [];
+  if (word) {
+    const [keyword, isCreated] = await models.Keyword.findOrCreate({
+      where: {
+        service_type: serviceType,
+        word_type: wordType,
+        word: word,
+      },
+    });
+    keywords.push(keyword);
+  } else {
+    const searchKeywordQueryObj: { [key: string]: any } = {
+      service_type: serviceType,
+      word_type: wordType,
+    };
+    const scraperModel = await models.Scraper.findOne({
+      where: {
+        service_type: serviceType,
+        word_type: wordType,
+      },
+    });
+    if (scraperModel) {
+      searchKeywordQueryObj.id = {
+        [models.Sequelize.Op.gt]: scraperModel.last_keyword_id,
+      };
+    }
+
+    const keywordModels = await models.Keyword.findAll({
+      where: searchKeywordQueryObj,
+      order: [['id', 'ASC']],
+      limit: 10,
+    });
+    for (const keyword of keywordModels) {
+      keywords.push(keyword);
+    }
+  }
+  await execution(keywords);
+  if (!word) {
+    const scrapedKeyword = keywords[keywords.length - 1];
+    if (scrapedKeyword) {
+      const [scrapeModel, isCreated] = await models.Scraper.findOrCreate({
+        where: {
+          service_type: serviceType,
+          word_type: wordType,
+        },
+        defaults: {
+          last_keyword_id: scrapedKeyword.id,
+          executed_at: new Date(),
+        },
+      });
+      if (!isCreated) {
+        scrapeModel.last_keyword_id = scrapedKeyword.id;
+        scrapeModel.executed_at = new Date();
+        await scrapeModel.save();
+      }
+    }
+  }
+};
+
 scrapeCommand
   .command('flickr')
   .description('')
   .option('-k, --keyword <keyword>', `検索するキーワード`)
   .action(async (options: any) => {
-    const keywords: any[] = [];
-    if (options.keyword) {
-      const [keyword, isCreated] = await models.Keyword.findOrCreate({
-        where: {
-          service_type: ServiceTypes.flickr,
-          word_type: WordTypes.searchword,
-          word: options.keyword,
-        },
-      });
-      keywords.push(keyword);
-    } else {
-      const searchKeywordQueryObj: { [key: string]: any } = {
-        service_type: ServiceTypes.flickr,
-        word_type: WordTypes.searchword,
-      };
-      const scraperModel = await models.Scraper.findOne({
-        where: {
-          service_type: ServiceTypes.flickr,
-          word_type: WordTypes.searchword,
-        },
-      });
-      if (scraperModel) {
-        searchKeywordQueryObj.id = {
-          [models.Sequelize.Op.gt]: scraperModel.last_keyword_id,
-        };
-      }
-
-      const keywordModels = await models.Keyword.findAll({
-        where: searchKeywordQueryObj,
-        order: [['id', 'ASC']],
-        limit: 10,
-      });
-      for (const keyword of keywordModels) {
-        keywords.push(keyword);
-      }
-    }
-    await allSearchAndImportFlickrPhotoData(keywords);
-    if (!options.keyword) {
-      const scrapedKeyword = keywords[keywords.length - 1];
-      if (scrapedKeyword) {
-        const [scrapeModel, isCreated] = await models.Scraper.findOrCreate({
-          where: {
-            service_type: scrapedKeyword.service_type,
-            word_type: WordTypes.searchword,
-          },
-          defaults: {
-            last_keyword_id: scrapedKeyword.id,
-            executed_at: new Date(),
-          },
-        });
-        if (!isCreated) {
-          scrapeModel.last_keyword_id = scrapedKeyword.id;
-          scrapeModel.executed_at = new Date();
-          await scrapeModel.save();
-        }
-      }
-    }
+    await scrapeFromKeywordRoutine({
+      serviceType: ServiceTypes.flickr,
+      wordType: WordTypes.searchword,
+      word: options.keyword,
+      execution: async (keywords) => {
+        await allSearchAndImportFlickrPhotoData(keywords);
+      },
+    });
   });
 
 scrapeCommand
