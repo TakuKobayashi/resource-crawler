@@ -29,7 +29,7 @@ services:
       - '3123:3123'
     build:
       context: .
-      dockerfile: ./docker/nodejs/Dockerfile
+      dockerfile: ./dockers/setup-nodejs/Dockerfile
     # ソースコードを格納するフォルダをマウント
     #（ホスト側の./をコンテナの/appにマウント）
     volumes:
