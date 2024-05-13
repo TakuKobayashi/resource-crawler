@@ -55,14 +55,15 @@ export async function importScrapedData({ keywordModel, scrapedDataModels }: { k
         if (!tag) {
           continue;
         }
+        const truncatedTag = _.truncate(tag, { length: 252 });
         contentTagsData.push({
           content_id: contentModel.id,
-          tag: tag,
+          tag: truncatedTag,
         });
         newKeywordsData.push({
           service_type: keywordModel.service_type,
           word_type: WordTypes.searchword,
-          word: tag,
+          word: truncatedTag,
         });
       }
       if (contentResource.geolocation) {

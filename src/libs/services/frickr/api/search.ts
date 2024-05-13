@@ -1,6 +1,7 @@
 import { FlickrImageResource } from '../../../interfaces/resource-result';
 import { importScrapedData, ScrapedDataModels, ScrapedDataModelPart } from '../../../utils/data-importers';
 import { ResourceTypes } from '../../../../sequelize/enums/resource-types';
+import _ from 'lodash';
 const Flickr = require('flickr-sdk');
 
 const FLICKR_PHOTO_ROOT_URL = 'https://www.flickr.com/photos/';
@@ -69,7 +70,7 @@ export async function allSearchAndImportFlickrPhotoData(keywordModels: any[]) {
         const scrapedData: ScrapedDataModelPart = {
           content: {
             service_type: keyword.service_type,
-            title: flickrImageResource.title,
+            title: _.truncate(flickrImageResource.title, { length: 252 }),
             website_url: flickrImageResource.website_url,
             service_content_id: flickrImageResource.id,
             service_user_id: flickrImageResource.user_id,
