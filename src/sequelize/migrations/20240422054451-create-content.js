@@ -33,12 +33,6 @@ module.exports = {
       service_user_name: {
         type: Sequelize.STRING,
       },
-      latitude: {
-        type: Sequelize.FLOAT,
-      },
-      longitude: {
-        type: Sequelize.FLOAT,
-      },
     });
     await queryInterface.addIndex('contents', ['website_url'], { unique: true });
     await queryInterface.addIndex('contents', ['service_content_id', 'service_type']);

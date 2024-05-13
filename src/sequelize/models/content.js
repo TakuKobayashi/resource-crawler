@@ -26,8 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       service_content_id: DataTypes.STRING,
       service_user_id: DataTypes.STRING,
       service_user_name: DataTypes.STRING,
-      latitude: DataTypes.FLOAT,
-      longitude: DataTypes.FLOAT,
     },
     {
       sequelize,
