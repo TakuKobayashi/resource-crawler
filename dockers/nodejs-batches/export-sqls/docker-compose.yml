@@ -1,0 +1,6 @@
+services:
+  mysql:
+    tty: false
+  nodejs:
+    tty: false
+    command: bash -c "yarn run crawler export sql"

@@ -1,0 +1,4 @@
+services:
+  nodejs:
+    tty: false
+    command: bash -c "yarn run sequelize db:seed:undo:all && yarn run sequelize db:seed:all"
